@@ -1,0 +1,233 @@
+.listar-produtos-container {
+  margin-top: 20px;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.listar-produtos-loading {
+  padding: 24px;
+  text-align: center;
+  color: #bbbbbb;
+}
+
+.listar-produtos-error {
+  padding: 24px;
+  text-align: center;
+  color: #ad2e2e;
+}
+
+.listar-produtos-table-wrapper {
+  overflow-x: auto;
+}
+
+.listar-produtos-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  white-space: nowrap;
+  padding: 0 16px;
+}
+
+.listar-produtos-table thead tr {
+  color: #b6b6b6;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.listar-produtos-table th {
+  padding: 0 24px 20px 24px;
+}
+
+.listar-produtos-table th.text-left {
+  text-align: left;
+}
+
+.listar-produtos-table th.text-center {
+  text-align: center;
+}
+
+.listar-produtos-table th.text-right {
+  text-align: right;
+}
+
+.listar-produtos-table tbody tr {
+  color: #c4c4c4;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+
+.listar-produtos-table td {
+  padding: 12px 22px;
+  border-top: 1px solid #727272;
+  border-bottom: 1px solid #727272;
+}
+
+.listar-produtos-table td.td-id {
+  font-weight: 500;
+  color: #c4c4c4;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-left: 1px solid #727272;
+}
+
+.listar-produtos-table td.td-actions {
+  text-align: right;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-right: 1px solid #727272;
+}
+
+.listar-produtos-table td.text-center {
+  text-align: center;
+}
+
+.listar-produtos-table td.font-medium {
+  font-weight: 500;
+}
+
+.produto-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.produto-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #475569;
+}
+
+.produto-img-placeholder {
+  width: 48px;
+  height: 48px;
+  background-color: #334155;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #475569;
+}
+
+.produto-img-placeholder span {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.produto-nome {
+  font-weight: 500;
+}
+
+.estoque-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.estoque-badge.ok {
+  background-color: #334155;
+  color: #cbd5e1;
+  border: 1px solid #475569;
+}
+
+.estoque-badge.baixo {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-badge.ativo {
+  color: #4ade80;
+}
+
+.status-badge.inativo {
+  color: #f87171;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.ativo {
+  background-color: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+}
+
+.status-dot.inativo {
+  background-color: #f87171;
+  box-shadow: 0 0 8px #f87171;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action.view {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #cbd5e1;
+}
+
+.btn-action.view:hover {
+  color: #ffffff;
+  border-color: #64748b;
+  background: #475569;
+}
+
+.btn-action.edit {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.btn-action.edit:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+.btn-action.delete {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.btn-action.delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: #94a3b8;
+}

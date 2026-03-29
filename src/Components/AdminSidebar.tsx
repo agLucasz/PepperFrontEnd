@@ -1,0 +1,62 @@
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Package, LogOut } from 'lucide-react';
+import '../Styles/sidebar.css';
+import logo from '../Assets/logo_pepper.png';
+
+const AdminSidebar: React.FC = () => {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem('pepperAuth');
+        navigate('/adminLogin');
+    };
+
+    return (
+        <aside className="sidebar-container">
+            {/* Logo */}
+            <div className="sidebar-logo-wrapper">
+                <img src={logo} alt="Pepper Logo" className="sidebar-logo" />
+            </div>
+
+            {/* Menu Administrativo */}
+            <div className="sidebar-menu-section">
+                <h3 className="sidebar-section-title">Painel de Controle</h3>
+                <nav className="sidebar-nav">
+                    <NavLink 
+                        to="/admin/dashboard" 
+                        end
+                        className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <LayoutDashboard className="sidebar-nav-icon" />
+                        Dashboard
+                    </NavLink>
+                    <NavLink 
+                        to="/admin/produtos" 
+                        className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <Package className="sidebar-nav-icon" />
+                        Produtos
+                    </NavLink>
+
+                </nav>
+            </div>
+
+            {/* Área de Saída */}
+            <div className="sidebar-menu-section" style={{ marginTop: 'auto' }}>
+                <nav className="sidebar-nav">
+                    <button 
+                        onClick={handleLogout}
+                        className="sidebar-nav-item"
+                        style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: '#cbd5e1' }}
+                    >
+                        <LogOut className="sidebar-nav-icon" />
+                        Sair
+                    </button>
+                </nav>
+            </div>
+        </aside>
+    );
+};
+
+export default AdminSidebar;

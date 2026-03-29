@@ -1,0 +1,79 @@
+.sidebar-container {
+  width: 260px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  flex-shrink: 0;
+  background-color: #141414; /* Cor escura do fundo */
+  border-right: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  box-sizing: border-box;
+  color: #bbbbbb;
+  overflow-y: auto;
+}
+
+.sidebar-logo-wrapper {
+  padding: 0 20px 30px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logo {
+  max-width: 140px;
+  height: auto;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+.sidebar-menu-section {
+  margin-bottom: 30px;
+}
+
+.sidebar-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 20px 10px 20px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  margin: 0 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: #bbbbbb;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.sidebar-nav-item:hover {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+.sidebar-nav-item.active {
+  background-color: #d61324; /* O vermelho da Pepper */
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(214, 19, 36, 0.3);
+}
+
+.sidebar-nav-icon {
+  width: 20px;
+  height: 20px;
+}
