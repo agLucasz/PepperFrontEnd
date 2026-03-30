@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, Edit, Trash2, X } from 'lucide-react';
+import { Eye, Edit, Trash2 } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
 import EditarProdutoModal from '../../../Components/EditarProdutoModal';
 import ProdutoDetalhesModal from '../../../Components/ProdutoDetalhesModal';
@@ -39,8 +38,6 @@ const ListarProdutos: React.FC = () => {
     const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
     const [selectedProduto, setSelectedProduto] = useState<ProdutoApi | null>(null);
     const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
-
-    const navigate = useNavigate();
     const API_BASE_URL = 'https://localhost:7035';
 
     useEffect(() => {

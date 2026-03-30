@@ -28,7 +28,7 @@ const Sidebar: React.FC = () => {
             </div>
 
             {/* Área Administrativa */}
-            <div className="sidebar-menu-section">
+            <div className="sidebar-menu-section admin-section-hide-mobile">
                 <h3 className="sidebar-section-title">Configurações</h3>
                 <nav className="sidebar-nav">
                     <NavLink 

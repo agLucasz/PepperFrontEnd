@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, PackagePlus } from 'lucide-react';
 import '../Styles/sidebar.css';
 import logo from '../Assets/logo_pepper.png';
 
@@ -44,6 +44,13 @@ const AdminSidebar: React.FC = () => {
                     >
                         <ShoppingCart className="sidebar-nav-icon" />
                         Vendas
+                    </NavLink>
+                    <NavLink 
+                        to="/admin/estoque" 
+                        className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <PackagePlus className="sidebar-nav-icon" />
+                        Estoque
                     </NavLink>
 
                 </nav>

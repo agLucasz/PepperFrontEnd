@@ -1,0 +1,118 @@
+.listar-estoque-container {
+  width: 100%;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #fff;
+}
+
+.custom-table th {
+  background-color: #2a2a2a;
+  padding: 14px 16px;
+  font-weight: 600;
+  color: #aaa;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #333;
+}
+
+.custom-table td {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  vertical-align: middle;
+}
+
+.custom-table tbody tr {
+  transition: background-color 0.2s;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #222;
+}
+
+.td-id {
+  font-family: monospace;
+  color: #888;
+  font-weight: 600;
+}
+
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.font-medium {
+  font-weight: 500;
+}
+
+.text-success {
+  color: #4ade80;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px !important;
+  color: #888;
+  font-style: italic;
+}
+
+.actions-container {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: #aaa;
+}
+
+.btn-action:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-action.delete:hover {
+  color: #e50914;
+  background-color: rgba(229, 9, 20, 0.1);
+}
+
+.header-with-back {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px;
+  margin-top: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-back:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}

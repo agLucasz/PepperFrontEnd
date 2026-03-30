@@ -1,0 +1,211 @@
+/* ==========================================================================
+   MEDIA QUERIES GLOBAIS - PEPPER FRONTEND
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   DESKTOP MENOR E TABLETS GRANDES (NOTEBOOKS) - Max width 1024px
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    /* Ajustes Gerais de Layout */
+    .dashboard-layout,
+    .admin-dashboard-layout {
+        flex-direction: row;
+    }
+
+    .dashboard-content,
+    .admin-dashboard-content {
+        padding: 20px;
+    }
+
+    /* Catálogo Grid */
+    .catalogo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    /* Ajuste de fontes */
+    .dashboard-title,
+    .admin-dashboard-title {
+        font-size: 1.8rem;
+    }
+
+    /* Reduz um pouco o Sidebar */
+    .sidebar-container,
+    .admin-sidebar-container {
+        width: 220px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   TABLETS EM PÉ E SMARTPHONES GRANDES - Max width 768px
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    /* Sidebar passa a ficar no topo */
+    .dashboard-layout,
+    .admin-dashboard-layout {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .sidebar-container {
+        display: none !important;
+    }
+
+    .admin-sidebar-container {
+        width: 100%;
+        height: auto;
+        position: relative;
+        flex-direction: column;
+        border-right: none;
+        border-bottom: 1px solid #2a2a2a;
+        padding: 15px 0;
+        z-index: 100;
+    }
+
+    .sidebar-logo-wrapper {
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-logo {
+        max-width: 80px;
+    }
+
+    /* Navegação horizontal no mobile - Apenas Sidebar Pública */
+    .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Admin Sidebar - Múltiplos Itens (Envolver e Centralizar) */
+    .admin-sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .sidebar-nav-item {
+        margin: 0;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        flex: 0 1 auto;
+        justify-content: center;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .admin-sidebar-nav-item {
+        margin: 0;
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        flex: 1 1 auto;
+        justify-content: center;
+        text-align: center;
+    }
+
+    /* Esconder o título da seção no mobile para economizar espaço */
+    .sidebar-section-title,
+    .admin-sidebar-section-title {
+        display: none;
+    }
+
+    .sidebar-menu-section {
+        margin-bottom: 0;
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .admin-sidebar-menu-section {
+        margin-bottom: 10px;
+    }
+
+    /* Ocultar a seção Admin na Sidebar Pública no Mobile */
+    .admin-section-hide-mobile {
+        display: none !important;
+    }
+
+    /* Ajustes no Conteúdo */
+    .dashboard-content,
+    .admin-dashboard-content {
+        padding: 15px;
+        width: 100%;
+    }
+
+    /* Catálogo: Um produto por linha (ocupando toda a tela) */
+    .catalogo-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .modern-product-card {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    /* PDV / Cadastrar Venda - Mobile layout (colunas empilhadas) */
+    .pdv-layout {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .pdv-cupom-section {
+        height: auto !important;
+        min-height: 400px;
+        margin-top: 20px;
+    }
+
+    .form-grid-centered {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .form-group.half-width {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   SMARTPHONES PEQUENOS - Max width 480px
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .dashboard-title,
+    .admin-dashboard-title {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-subtitle,
+    .admin-dashboard-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .sidebar-nav-item,
+    .admin-sidebar-nav-item {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+
+    .btn-large,
+    .btn-salvar,
+    .btn-success {
+        width: 100%;
+    }
+
+    /* Ajustes na tabela do Admin (fazer scroll horizontal) */
+    .table-wrapper,
+    .listar-produtos-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .custom-table,
+    .listar-produtos-table {
+        min-width: 600px; /* Força o scroll em telas muito finas */
+    }
+}

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Plus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
 import '../../../Styles/Admin/adminDashBoard.css';
 import '../../../Styles/Admin/Venda/cadastrarVenda.css';
@@ -25,10 +25,10 @@ const CadastrarVenda: React.FC = () => {
 
     const [itens, setItens] = useState<(VendaItemCreateDTO & { NomeProduto: string })[]>([]);
 
-    const [produtoIdStr, setProdutoIdStr] = useState<string>('');
+    const [produtoSelecionadoId, setProdutoSelecionadoId] = useState<number | null>(null);
+    const [produtoBuscaStr, setProdutoBuscaStr] = useState<string>('');
     const [quantidade, setQuantidade] = useState<number>(1);
     const [valorUnitario, setValorUnitario] = useState<number>(0);
-    const [nomeProdutoAtual, setNomeProdutoAtual] = useState<string>('');
 
 
     const [showProdutoModal, setShowProdutoModal] = useState(false);
@@ -57,7 +57,7 @@ const CadastrarVenda: React.FC = () => {
     const handleKeyDownProduto = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            const pId = parseInt(produtoIdStr, 10);
+            const pId = parseInt(produtoBuscaStr, 10);
             if (!isNaN(pId)) {
                 // Tenta achar o produto na lista se já carregada
                 const p = produtos.find((prod) => (prod.ProdutoId ?? prod.produtoId) === pId);
@@ -75,8 +75,8 @@ const CadastrarVenda: React.FC = () => {
         const nome = produto.NomeProduto ?? produto.nomeProduto;
         const valor = produto.ValorVenda ?? produto.valorVenda;
 
-        if (id != null) setProdutoIdStr(id.toString());
-        if (nome != null) setNomeProdutoAtual(nome);
+        if (id != null) setProdutoSelecionadoId(id);
+        if (nome != null) setProdutoBuscaStr(nome);
         if (valor != null) setValorUnitario(valor);
         
         setQuantidade(1);
@@ -84,8 +84,16 @@ const CadastrarVenda: React.FC = () => {
     };
 
     const adicionarItem = () => {
-        const pId = parseInt(produtoIdStr, 10);
-        if (isNaN(pId) || pId <= 0) {
+        let finalProdutoId = produtoSelecionadoId;
+
+        if (!finalProdutoId && produtoBuscaStr) {
+            const pIdStr = parseInt(produtoBuscaStr, 10);
+            if (!isNaN(pIdStr) && pIdStr > 0) {
+                finalProdutoId = pIdStr;
+            }
+        }
+
+        if (!finalProdutoId || finalProdutoId <= 0) {
             setError('Informe um ID de produto válido.');
             return;
         }
@@ -99,18 +107,18 @@ const CadastrarVenda: React.FC = () => {
         }
 
         const novoItem = {
-            ProdutoId: pId,
+            ProdutoId: finalProdutoId,
             QuantidadeItem: quantidade,
             ValorUnitario: valorUnitario,
-            NomeProduto: nomeProdutoAtual || `Produto #${pId}`
+            NomeProduto: produtoBuscaStr || `Produto #${finalProdutoId}`
         };
 
         setItens([...itens, novoItem]);
         setError(null);
         
 
-        setProdutoIdStr('');
-        setNomeProdutoAtual('');
+        setProdutoSelecionadoId(null);
+        setProdutoBuscaStr('');
         setQuantidade(1);
         setValorUnitario(0);
     };
@@ -216,16 +224,18 @@ const CadastrarVenda: React.FC = () => {
                             <h3 className="panel-title">Adicionar Item</h3>
                             
                             <div className="form-group">
-                                <label>Código do Produto (Aperte Enter)</label>
-                                    <input 
-                                        type="text" 
-                                        value={produtoIdStr}
-                                        onChange={(e) => setProdutoIdStr(e.target.value)}
-                                        onKeyDown={handleKeyDownProduto}
-                                        className="pdv-input"
-                                    />
-                      
-                                {nomeProdutoAtual && <span className="produto-atual-nome">{nomeProdutoAtual}</span>}
+                                <label>Produto (Aperte Enter para buscar)</label>
+                                <input 
+                                    type="text" 
+                                    value={produtoBuscaStr}
+                                    onChange={(e) => {
+                                        setProdutoBuscaStr(e.target.value);
+                                        setProdutoSelecionadoId(null);
+                                    }}
+                                    onKeyDown={handleKeyDownProduto}
+                                    placeholder="Digite o ID e tecle Enter..."
+                                    className="pdv-input"
+                                />
                             </div>
 
                             <div className="form-group-row">
@@ -337,8 +347,7 @@ const CadastrarVenda: React.FC = () => {
                                         return (
                                             <div key={id} className="produto-select-card" onClick={() => selecionarProduto(p)}>
                                                 <div className="produto-select-info">
-                                                    <span className="produto-select-id">#{id}</span>
-                                                    <span className="produto-select-name">{nome}</span>
+                                                    <span className="produto-select-id">#{id} - {nome || 'Sem Nome'}</span>
                                                     <span className="produto-select-price">
                                                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(preco || 0)}
                                                     </span>

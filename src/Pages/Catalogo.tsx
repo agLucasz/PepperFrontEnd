@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { listarCatalogo } from '../Services/produtoService';
 import Sidebar from '../Components/Sidebar';
 import { ProductImageCarouselModal } from '../Components/ProductImageCarouselModal';
@@ -6,6 +7,7 @@ import '../Styles/catalogo.css';
 import '../Styles/dashboard.css';
 
 const API_BASE_URL = 'https://localhost:7035';
+const PRODUTO_HUB_URL = `${API_BASE_URL}/produtoHub`;
 
 const formatTamanho = (tamanhoString: string) => {
     if (!tamanhoString || tamanhoString === 'Nenhum') return '';
@@ -104,16 +106,15 @@ export const Catalogo: React.FC = () => {
     const [modalImages, setModalImages] = useState<string[]>([]);
     const [modalProductName, setModalProductName] = useState('');
 
-    useEffect(() => {
-        carregarCatalogo();
-    }, []);
-
-    const carregarCatalogo = async () => {
+    const carregarCatalogo = useCallback(async (showLoading: boolean = true) => {
         try {
-            setLoading(true);
+            if (showLoading) {
+                setLoading(true);
+            }
             const data = await listarCatalogo();
             setProdutos(data);
             setCurrentPage(1);
+            setError(null);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -121,9 +122,45 @@ export const Catalogo: React.FC = () => {
                 setError('Erro ao carregar catálogo.');
             }
         } finally {
-            setLoading(false);
+            if (showLoading) {
+                setLoading(false);
+            }
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        void carregarCatalogo();
+
+        const connection = new HubConnectionBuilder()
+            .withUrl(PRODUTO_HUB_URL, {
+                withCredentials: true,
+                transport: HttpTransportType.WebSockets,
+                skipNegotiation: true
+            })
+            .withAutomaticReconnect()
+            .configureLogging(LogLevel.Warning)
+            .build();
+
+        connection.on('CatalogoAtualizado', () => {
+            void carregarCatalogo(false);
+        });
+
+        const iniciarConexao = async () => {
+            try {
+                await connection.start();
+                await connection.invoke('EntrarNoGrupoCatalogo');
+            } catch {
+                setError('Conexão em tempo real indisponível no momento.');
+            }
+        };
+
+        void iniciarConexao();
+
+        return () => {
+            connection.off('CatalogoAtualizado');
+            void connection.stop();
+        };
+    }, [carregarCatalogo]);
 
     const handleOpenModal = (images: string[], nome: string) => {
         if (!images.length) return;
