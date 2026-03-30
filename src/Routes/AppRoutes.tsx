@@ -7,6 +7,9 @@ import AdminDashBoard from '../Pages/Admin/AdminDashBoard.tsx';
 import Produtos from '../Pages/Admin/Produto/Produtos.tsx';
 import CadastrarProdutos from '../Pages/Admin/Produto/CadastrarProdutos.tsx';
 import ListarProdutos from '../Pages/Admin/Produto/ListarProdutos.tsx';
+import Vendas from '../Pages/Admin/Venda/Venda.tsx';
+import CadastrarVenda from '../Pages/Admin/Venda/CadastrarVenda.tsx';
+import ListarVenda from '../Pages/Admin/Venda/ListarVenda.tsx';
 import { Catalogo } from '../Pages/Catalogo.tsx';
 
 const AppRoutes: React.FC = () => {
@@ -20,6 +23,9 @@ const AppRoutes: React.FC = () => {
             <Route path="/admin/produtos" element={<Produtos />} />
             <Route path="/admin/produtos/cadastrar" element={<CadastrarProdutos />} />
             <Route path="/admin/produtos/listar" element={<ListarProdutos />} />
+            <Route path="/admin/vendas" element={<Vendas />} />
+            <Route path="/admin/vendas/cadastrar" element={<CadastrarVenda />} />
+            <Route path="/admin/vendas/listar" element={<ListarVenda />} />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

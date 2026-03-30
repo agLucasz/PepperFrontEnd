@@ -11,6 +11,18 @@ export interface ProdutoCreateDTO {
     ImagemUrl: string;
 }
 
+export interface ProdutoUpdateDTO {
+    NomeProduto: string;
+    DescricaoProduto?: string;
+    ValorCompra: number;
+    ValorVenda: number;
+    Quantidade: number;
+    Tamanho: string[];
+    PaisCodigoISO: string;
+    ImagemUrl?: string;
+    Ativo: boolean;
+}
+
 export interface ProdutoDTO {
     ProdutoId: number;
     NomeProduto: string;
@@ -44,7 +56,7 @@ function getAuthHeaders(): Record<string, string> {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function mapProdutoPayload(produto: ProdutoCreateDTO) {
+function mapProdutoPayload(produto: ProdutoCreateDTO | ProdutoUpdateDTO) {
     return {
         ...produto,
         Tamanho: produto.Tamanho.reduce((acc, curr) => acc + parseInt(curr, 10), 0)
@@ -88,6 +100,24 @@ export async function cadastrarProduto(produto: ProdutoCreateDTO): Promise<Produ
     return await response.json();
 }
 
+export async function atualizarProduto(id: number, produto: ProdutoUpdateDTO): Promise<ProdutoDTO> {
+    const response = await fetch(`${API_BASE_URL}/api/produto/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders()
+        },
+        body: JSON.stringify(mapProdutoPayload(produto))
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Erro ao atualizar produto.');
+    }
+
+    return await response.json();
+}
+
 export async function listarProdutos(): Promise<ProdutoDTO[]> {
     const response = await fetch(`${API_BASE_URL}/api/produto`, {
         method: 'GET',
@@ -125,5 +155,17 @@ export async function desativarProduto(id: number): Promise<void> {
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error(errorText || 'Erro ao excluir produto.');
+    }
+}
+
+export async function reativarProduto(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/produto/reativar/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Erro ao reativar produto.');
     }
 }

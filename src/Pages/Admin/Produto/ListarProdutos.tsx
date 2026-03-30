@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Edit, Trash2, X } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
+import EditarProdutoModal from '../../../Components/EditarProdutoModal';
+import ProdutoDetalhesModal from '../../../Components/ProdutoDetalhesModal';
 import '../../../Styles/Admin/adminDashBoard.css';
 import '../../../Styles/Admin/Produto/ListarProdutos.css'; // Importação do CSS externo
 import { listarProdutos, desativarProduto } from '../../../Services/produtoService';
@@ -34,7 +36,9 @@ const ListarProdutos: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [viewModalOpen, setViewModalOpen] = useState<boolean>(false);
+    const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
     const [selectedProduto, setSelectedProduto] = useState<ProdutoApi | null>(null);
+    const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
 
     const navigate = useNavigate();
     const API_BASE_URL = 'https://localhost:7035';
@@ -65,8 +69,14 @@ const ListarProdutos: React.FC = () => {
         setViewModalOpen(true);
     };
 
-    const handleEdit = (id: number) => {
-        navigate(`/admin/produto/editar/${id}`);
+    const handleEdit = (produto: ProdutoApi) => {
+        setSelectedProduto(produto);
+        setEditModalOpen(true);
+    };
+
+    const handleEditSuccess = () => {
+        setEditModalOpen(false);
+        carregarProdutos();
     };
 
     const handleDelete = async (id: number) => {
@@ -84,6 +94,17 @@ const ListarProdutos: React.FC = () => {
         }
     };
 
+    const produtosFiltrados = produtos.filter(produto => {
+        if (statusFilter === 'todos') return true;
+        
+        const ativo = produto.ativo !== undefined ? produto.ativo : produto.Ativo;
+        
+        if (statusFilter === 'ativos') return ativo === true;
+        if (statusFilter === 'inativos') return ativo === false;
+        
+        return true;
+    });
+
     return (
         <div className="admin-dashboard-layout">
             <AdminSidebar />
@@ -95,6 +116,28 @@ const ListarProdutos: React.FC = () => {
                 </header>
                 
                 <div className="admin-dashboard-body listar-produtos-container">
+                    <div className="filtros-container" style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <label htmlFor="statusFilter" style={{ fontWeight: 500, color: '#e0e0e0' }}>Filtrar por Status:</label>
+                        <select 
+                            id="statusFilter" 
+                            value={statusFilter} 
+                            onChange={(e) => setStatusFilter(e.target.value as 'todos' | 'ativos' | 'inativos')}
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: '6px',
+                                border: '1px solid #444',
+                                backgroundColor: '#2a2a2a',
+                                color: '#fff',
+                                outline: 'none',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <option value="todos">Todos</option>
+                            <option value="ativos">Ativos</option>
+                            <option value="inativos">Inativos</option>
+                        </select>
+                    </div>
+
                     {loading && <div className="listar-produtos-loading">Carregando produtos...</div>}
                     {error && <div className="listar-produtos-error">{error}</div>}
                     
@@ -112,12 +155,12 @@ const ListarProdutos: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {produtos.length === 0 ? (
+                                    {produtosFiltrados.length === 0 ? (
                                         <tr>
                                             <td colSpan={6} className="empty-state">Nenhum produto encontrado.</td>
                                         </tr>
                                     ) : (
-                                        produtos.map((produto) => {
+                                        produtosFiltrados.map((produto) => {
                                             const id = produto.produtoId ?? produto.ProdutoId;
                                             if (id == null) {
                                                 return null;
@@ -172,7 +215,7 @@ const ListarProdutos: React.FC = () => {
                                                                 <Eye size={18} />
                                                             </button>
                                                             <button 
-                                                                onClick={() => handleEdit(id)} 
+                                                                onClick={() => handleEdit(produto)} 
                                                                 title="Editar" 
                                                                 className="btn-action edit"
                                                             >
@@ -199,64 +242,20 @@ const ListarProdutos: React.FC = () => {
             </main>
 
             {/* Modal de Visualização do Produto */}
-            {viewModalOpen && selectedProduto && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-                    justifyContent: 'center', alignItems: 'center', zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: '#fff', padding: '24px', borderRadius: '8px',
-                        width: '600px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto',
-                        position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                    }}>
-                        <button 
-                            onClick={() => setViewModalOpen(false)}
-                            style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer' }}
-                        >
-                            <X size={24} color="#666" />
-                        </button>
-                        
-                        <h3 style={{ marginTop: 0, borderBottom: '1px solid #eee', paddingBottom: '12px', marginBottom: '20px', color: '#333' }}>
-                            Detalhes do Produto
-                        </h3>
-                        
-                        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                            <div style={{ flexShrink: 0 }}>
-                                {selectedProduto.imagemUrl || selectedProduto.ImagemUrl ? (
-                                    <img 
-                                        src={`${API_BASE_URL}${selectedProduto.imagemUrl || selectedProduto.ImagemUrl}`} 
-                                        alt={selectedProduto.nomeProduto || selectedProduto.NomeProduto} 
-                                        style={{ width: '180px', height: '180px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #eee' }} 
-                                    />
-                                ) : (
-                                    <div style={{ width: '180px', height: '180px', backgroundColor: '#f5f5f5', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee' }}>
-                                        <span style={{ color: '#888' }}>Sem imagem</span>
-                                    </div>
-                                )}
-                            </div>
-                            <div style={{ flex: 1, minWidth: '250px', display: 'flex', flexDirection: 'column', gap: '8px', color: '#444' }}>
-                                <p style={{ margin: 0 }}><strong>ID:</strong> {selectedProduto.produtoId || selectedProduto.ProdutoId}</p>
-                                <p style={{ margin: 0 }}><strong>Nome:</strong> {selectedProduto.nomeProduto || selectedProduto.NomeProduto}</p>
-                                <p style={{ margin: 0 }}><strong>Descrição:</strong> {selectedProduto.descricaoProduto || selectedProduto.DescricaoProduto || 'Nenhuma descrição informada'}</p>
-                                <p style={{ margin: 0 }}><strong>Preço de Compra:</strong> {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedProduto.valorCompra || selectedProduto.ValorCompra || 0)}</p>
-                                <p style={{ margin: 0 }}><strong>Preço de Venda:</strong> {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedProduto.valorVenda || selectedProduto.ValorVenda || 0)}</p>
-                                <p style={{ margin: 0 }}><strong>Quantidade em Estoque:</strong> {(selectedProduto.quantidade ?? selectedProduto.Quantidade) ?? 0}</p>
-                                <p style={{ margin: 0 }}>
-                                    <strong>Tamanhos:</strong>{' '}
-                                    {(() => {
-                                        const tamanhos = selectedProduto.tamanho || selectedProduto.Tamanho;
-                                        return tamanhos && tamanhos.length > 0 ? tamanhos.join(', ') : 'Nenhum';
-                                    })()}
-                                </p>
-                                <p style={{ margin: 0 }}><strong>País (ISO):</strong> {selectedProduto.paisCodigoISO || selectedProduto.PaisCodigoISO}</p>
-                                <p style={{ margin: 0 }}><strong>Status:</strong> <span style={{ color: (selectedProduto.ativo !== undefined ? selectedProduto.ativo : selectedProduto.Ativo) ? '#1e8e3e' : '#d93025', fontWeight: 'bold' }}>
-                                    {(selectedProduto.ativo !== undefined ? selectedProduto.ativo : selectedProduto.Ativo) ? 'Ativo' : 'Inativo'}
-                                </span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {viewModalOpen && (
+                <ProdutoDetalhesModal
+                    produto={selectedProduto}
+                    onClose={() => setViewModalOpen(false)}
+                />
+            )}
+
+            {/* Modal de Edição do Produto */}
+            {editModalOpen && (
+                <EditarProdutoModal
+                    produto={selectedProduto}
+                    onClose={() => setEditModalOpen(false)}
+                    onUpdateSuccess={handleEditSuccess}
+                />
             )}
         </div>
     );

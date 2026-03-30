@@ -13,6 +13,7 @@
   box-sizing: border-box;
   color: #bbbbbb;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-logo-wrapper {

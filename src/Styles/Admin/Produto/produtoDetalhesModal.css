@@ -1,0 +1,134 @@
+/* .modal-overlay is defined globally or in other modals, but we can reuse the same class name as it functions as a global overlay. */
+
+.produto-detalhes-modal {
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+.produto-detalhes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #333;
+    background-color: #1a1a1a;
+}
+
+.produto-detalhes-header h3 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.produto-detalhes-close {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.produto-detalhes-close:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+.produto-detalhes-body {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.produto-detalhes-content {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.produto-detalhes-imagem-container {
+    flex-shrink: 0;
+}
+
+.produto-detalhes-img {
+    width: 220px;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.produto-detalhes-img-placeholder {
+    width: 220px;
+    height: 220px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #444;
+    color: #888;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.produto-detalhes-info {
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    color: #e0e0e0;
+}
+
+.produto-detalhes-info p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+
+.produto-detalhes-info p:last-child {
+    border-bottom: none;
+}
+
+.produto-detalhes-info strong {
+    color: #fff;
+    font-weight: 600;
+    display: inline-block;
+    width: 150px;
+}
+
+.status-text {
+    font-weight: bold;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.status-text.ativo {
+    color: #4ade80;
+    background-color: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.status-text.inativo {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}

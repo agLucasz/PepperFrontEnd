@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut } from 'lucide-react';
 import '../Styles/sidebar.css';
 import logo from '../Assets/logo_pepper.png';
 
@@ -38,17 +38,24 @@ const AdminSidebar: React.FC = () => {
                         <Package className="sidebar-nav-icon" />
                         Produtos
                     </NavLink>
+                    <NavLink 
+                        to="/admin/vendas" 
+                        className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <ShoppingCart className="sidebar-nav-icon" />
+                        Vendas
+                    </NavLink>
 
                 </nav>
             </div>
 
             {/* Área de Saída */}
-            <div className="sidebar-menu-section" style={{ marginTop: 'auto' }}>
+            <div className="sidebar-menu-section" style={{ marginTop: 'auto', marginBottom: '0' }}>
                 <nav className="sidebar-nav">
                     <button 
                         onClick={handleLogout}
                         className="sidebar-nav-item"
-                        style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: '#cbd5e1' }}
+                        style={{ width: 'calc(100% - 20px)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: '#cbd5e1' }}
                     >
                         <LogOut className="sidebar-nav-icon" />
                         Sair
