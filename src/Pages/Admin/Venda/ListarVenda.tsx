@@ -23,6 +23,8 @@ const ListarVenda: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [vendaSelecionada, setVendaSelecionada] = useState<VendaApi | null>(null);
     const [modalAberto, setModalAberto] = useState<boolean>(false);
+    const [dataInicio, setDataInicio] = useState<string>('');
+    const [dataFim, setDataFim] = useState<string>('');
 
     useEffect(() => {
         carregarVendas();
@@ -70,6 +72,41 @@ const ListarVenda: React.FC = () => {
         setVendaSelecionada(null);
     };
 
+    const vendasFiltradas = vendas.filter((venda) => {
+        if (!dataInicio && !dataFim) {
+            return true;
+        }
+
+        const dt = venda.DtVenda ?? venda.dtVenda;
+        if (!dt) {
+            return false;
+        }
+
+        const dataVenda = new Date(dt);
+        if (Number.isNaN(dataVenda.getTime())) {
+            return false;
+        }
+
+        const inicio = dataInicio ? new Date(`${dataInicio}T00:00:00`) : null;
+        const fim = dataFim ? new Date(`${dataFim}T23:59:59.999`) : null;
+
+        if (inicio && dataVenda < inicio) {
+            return false;
+        }
+
+        if (fim && dataVenda > fim) {
+            return false;
+        }
+
+        return true;
+    });
+
+    const totalVendasFiltradas = vendasFiltradas.length;
+    const valorTotalFiltrado = vendasFiltradas.reduce((acumulado, venda) => {
+        const total = venda.ValorTotal ?? venda.valorTotal ?? 0;
+        return acumulado + total;
+    }, 0);
+
     return (
         <div className="admin-dashboard-layout">
             <AdminSidebar />
@@ -81,6 +118,50 @@ const ListarVenda: React.FC = () => {
                 </header>
                 
                 <div className="admin-dashboard-body listar-vendas-container">
+                    <div className="listar-vendas-filtros">
+                        <div className="filtro-periodo-grupo">
+                            <label htmlFor="dataInicio">De</label>
+                            <input
+                                id="dataInicio"
+                                type="date"
+                                value={dataInicio}
+                                onChange={(e) => setDataInicio(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="filtro-periodo-grupo">
+                            <label htmlFor="dataFim">Até</label>
+                            <input
+                                id="dataFim"
+                                type="date"
+                                value={dataFim}
+                                onChange={(e) => setDataFim(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            className="btn-limpar-filtro-venda"
+                            onClick={() => {
+                                setDataInicio('');
+                                setDataFim('');
+                            }}
+                            disabled={!dataInicio && !dataFim}
+                        >
+                            Limpar Filtro
+                        </button>
+                    </div>
+
+                    <div className="listar-vendas-resumo">
+                        <p>
+                            <strong>Total de vendas no período:</strong> {totalVendasFiltradas}
+                        </p>
+                        <p>
+                            <strong>Valor total no período:</strong>{' '}
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotalFiltrado)}
+                        </p>
+                    </div>
+
                     {loading && <div className="listar-vendas-loading">Carregando vendas...</div>}
                     {error && <div className="listar-vendas-error">{error}</div>}
                     
@@ -97,12 +178,12 @@ const ListarVenda: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {vendas.length === 0 ? (
+                                    {vendasFiltradas.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="empty-state">Nenhuma venda encontrada.</td>
+                                            <td colSpan={5} className="empty-state">Nenhuma venda encontrada para o período informado.</td>
                                         </tr>
                                     ) : (
-                                        vendas.map((venda) => {
+                                        vendasFiltradas.map((venda) => {
                                             const id = venda.VendaId ?? venda.vendaId;
                                             const dt = venda.DtVenda ?? venda.dtVenda;
                                             const itens = venda.Itens ?? venda.itens ?? [];

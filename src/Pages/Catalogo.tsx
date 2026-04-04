@@ -1,31 +1,22 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { listarCatalogo } from '../Services/produtoService';
-import Sidebar from '../Components/Sidebar';
+import Sidebar, { type CatalogFilters } from '../Components/Sidebar';
 import { ProductImageCarouselModal } from '../Components/ProductImageCarouselModal';
+import { MessageCircle, Search } from 'lucide-react';
 import '../Styles/catalogo.css';
 import '../Styles/dashboard.css';
+import logo from '../Assets/logo_pepper.png';
 
 const API_BASE_URL = 'https://localhost:7035';
 const PRODUTO_HUB_URL = `${API_BASE_URL}/produtoHub`;
 
 const formatTamanho = (tamanhoString: string) => {
     if (!tamanhoString || tamanhoString === 'Nenhum') return '';
-    
-    const tamanhos = tamanhoString.split(', ');
-    
-    const formatados = tamanhos.map((t: string) => {
-        const match = t.match(/^([A-Z]+)(Masculino|Feminino)$/);
-        if (match) {
-            return `${match[1]} - ${match[2]}`;
-        }
-        return t; 
-    });
-    
-    return formatados.join(', ');
+    return tamanhoString;
 };
 
-type ProdutoCatalogoApi = {
+export type ProdutoCatalogoApi = {
     produtoId?: number;
     ProdutoId?: number;
     nomeProduto?: string;
@@ -38,11 +29,13 @@ type ProdutoCatalogoApi = {
     Tamanho?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
+    paisCodigoISO?: string;
+    PaisCodigoISO?: string;
 };
 
 interface ProdutoCardProps {
     produto: ProdutoCatalogoApi;
-    onOpenModal: (images: string[], nome: string) => void;
+    onOpenModal: (produto: ProdutoCatalogoApi, imagens: string[]) => void;
 }
 
 const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
@@ -63,9 +56,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
         <div 
             className="modern-product-card"
             onClick={() => {
-                if (imagens.length > 0) {
-                    onOpenModal(imagens, nome);
-                }
+                onOpenModal(produto, imagens);
             }}
         >
             <div className="card-image-container">
@@ -82,11 +73,6 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
             
             <div className="card-content">
                 <h3 className="card-title">{nome}</h3>
-                <p className="card-description">
-                    {descricao ? descricao : ''}
-                    {descricao && tamanho && tamanho !== 'Nenhum' && <br />}
-                    {tamanho && tamanho !== 'Nenhum' && `Tam: ${formatTamanho(tamanho)}`}
-                </p>
                 
                 <div className="card-price">
                     R$ {preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -104,7 +90,14 @@ export const Catalogo: React.FC = () => {
     const pageSize = 8;
     const [modalOpen, setModalOpen] = useState(false);
     const [modalImages, setModalImages] = useState<string[]>([]);
-    const [modalProductName, setModalProductName] = useState('');
+    const [modalProduto, setModalProduto] = useState<ProdutoCatalogoApi | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sidebarFilters, setSidebarFilters] = useState<CatalogFilters>({
+        pais: '',
+        tamanho: '',
+        precoMin: '',
+        precoMax: ''
+    });
 
     const carregarCatalogo = useCallback(async (showLoading: boolean = true) => {
         try {
@@ -145,34 +138,83 @@ export const Catalogo: React.FC = () => {
             void carregarCatalogo(false);
         });
 
+        let isMounted = true;
+        let startPromise: Promise<void> | null = null;
+
         const iniciarConexao = async () => {
             try {
-                await connection.start();
-                await connection.invoke('EntrarNoGrupoCatalogo');
-            } catch {
-                setError('Conexão em tempo real indisponível no momento.');
+                if (connection.state === 'Disconnected') {
+                    startPromise = connection.start();
+                    await startPromise;
+                    startPromise = null;
+
+                    if (isMounted) {
+                        await connection.invoke('EntrarNoGrupoCatalogo');
+                    } else {
+                        if (connection.state !== 'Disconnected') {
+                            await connection.stop();
+                        }
+                    }
+                }
+            } catch (err: any) {
+                if (isMounted) {
+                    if (err?.message !== 'Failed to start the HttpConnection before stop() was called.') {
+                        console.warn('Erro ao conectar ao SignalR:', err);
+                        setError('Conexão em tempo real indisponível no momento.');
+                    }
+                }
             }
         };
 
         void iniciarConexao();
 
         return () => {
+            isMounted = false;
             connection.off('CatalogoAtualizado');
-            void connection.stop();
+            void (async () => {
+                try {
+                    if (startPromise) {
+                        await startPromise;
+                    }
+                } catch {
+                    // Ignora falha de start durante desmontagem
+                } finally {
+                    if (connection.state !== 'Disconnected') {
+                        await connection.stop();
+                    }
+                }
+            })();
         };
     }, [carregarCatalogo]);
 
-    const handleOpenModal = (images: string[], nome: string) => {
-        if (!images.length) return;
+    const handleOpenModal = (produto: ProdutoCatalogoApi, images: string[]) => {
         setModalImages(images);
-        setModalProductName(nome);
+        setModalProduto(produto);
         setModalOpen(true);
     };
 
-    const totalPages = Math.ceil(produtos.length / pageSize) || 1;
+    // Apply filters
+    const produtosFiltrados = produtos.filter(p => {
+        const nome = (p.nomeProduto || p.NomeProduto || '').toLowerCase();
+        const matchesSearch = nome.includes(searchTerm.toLowerCase());
+
+        const preco = p.valorVenda || p.ValorVenda || 0;
+        const matchesPrecoMin = sidebarFilters.precoMin ? preco >= Number(sidebarFilters.precoMin) : true;
+        const matchesPrecoMax = sidebarFilters.precoMax ? preco <= Number(sidebarFilters.precoMax) : true;
+
+        const tamanhoStr = (p.tamanho || p.Tamanho || '');
+        const matchesTamanho = sidebarFilters.tamanho ? tamanhoStr.includes(sidebarFilters.tamanho) : true;
+
+        const pais = (p.paisCodigoISO || p.PaisCodigoISO || '');
+        const matchesPais = sidebarFilters.pais ? pais === sidebarFilters.pais : true;
+
+        return matchesSearch && matchesPrecoMin && matchesPrecoMax && matchesTamanho && matchesPais;
+    });
+
+    const totalPages = Math.ceil(produtosFiltrados.length / pageSize) || 1;
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const produtosPagina = produtos.slice(startIndex, endIndex);
+    const produtosPagina = produtosFiltrados.slice(startIndex, endIndex);
 
     const goToPage = (page: number) => {
         if (page < 1 || page > totalPages) return;
@@ -180,14 +222,51 @@ export const Catalogo: React.FC = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const handleWhatsAppClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const phoneNumber = '5511999999999'; // Substitua pelo número real da empresa
+        const message = 'Olá! Gostaria de ver mais modelos e tirar dúvidas.';
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    };
+
     return (
         <div className="dashboard-layout">
-            <Sidebar />
+            <Sidebar onFilterChange={(filters) => {
+                setSidebarFilters(filters);
+                setCurrentPage(1);
+            }} />
             <main className="dashboard-content">
                 <div className="catalogo-container">
                     <header className="dashboard-header" style={{ marginBottom: '20px' }}>
-                        <h2 className="dashboard-title">Nossos Produtos</h2>
-                        <p className="dashboard-subtitle">Explore as melhores camisas de times disponíveis.</p>
+                        <img src={logo} alt="Pepper Logo" className="catalog-logo-mobile" />
+                        <h2 className="catalogo-title">Nossos Produtos</h2>
+                        <p className="catalogo-subtitle">Descubra nossa coleção exclusiva de camisas de times, criada para verdadeiros apaixonados por futebol. Nosso catálogo reúne modelos autênticos e réplicas de alta qualidade, com acabamentos impecáveis, tecidos confortáveis e design fiel aos uniformes oficiais.</p>
+                        
+                        <a 
+                            href="#" 
+                            onClick={handleWhatsAppClick}
+                            className="catalog-whatsapp-mobile-btn"
+                        >
+                            <MessageCircle size={20} />
+                            Chamar no WhatsApp
+                        </a>
+
+                        <div className="catalogo-search-bar">
+                            <Search className="catalogo-search-icon" size={20} />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por nome do produto..." 
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            />
+                        </div>
+                        
+                        {/* Container onde a Sidebar renderizará os filtros no mobile (Portal) */}
+                        <div id="mobile-filters-container" className="mobile-filters-container"></div>
                     </header>
                     
                     {loading && <div className="catalogo-loading">Carregando catálogo...</div>}
@@ -195,8 +274,8 @@ export const Catalogo: React.FC = () => {
 
                     {!loading && !error && (
                         <div className="catalogo-grid">
-                            {produtos.length === 0 ? (
-                                <p className="catalogo-empty">Nenhum produto disponível no catálogo.</p>
+                            {produtosFiltrados.length === 0 ? (
+                                <p className="catalogo-empty">Nenhum produto encontrado com os filtros selecionados.</p>
                             ) : (
                                 produtosPagina.map(produto => (
                                     <ProdutoCard 
@@ -208,7 +287,7 @@ export const Catalogo: React.FC = () => {
                             )}
                         </div>
                     )}
-                    {!loading && !error && produtos.length > pageSize && (
+                    {!loading && !error && produtosFiltrados.length > pageSize && (
                         <div className="catalogo-pagination">
                             <button 
                                 className="pagination-btn" 
@@ -241,7 +320,7 @@ export const Catalogo: React.FC = () => {
                         isOpen={modalOpen}
                         images={modalImages}
                         onClose={() => setModalOpen(false)}
-                        productName={modalProductName}
+                        produto={modalProduto}
                     />
         </div>
       </main>

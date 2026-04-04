@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, Ban, CheckCircle } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
 import EditarProdutoModal from '../../../Components/EditarProdutoModal';
 import ProdutoDetalhesModal from '../../../Components/ProdutoDetalhesModal';
 import '../../../Styles/Admin/adminDashBoard.css';
 import '../../../Styles/Admin/Produto/ListarProdutos.css'; // Importação do CSS externo
-import { listarProdutos, desativarProduto } from '../../../Services/produtoService';
+import { listarProdutos, desativarProduto, excluirProduto, reativarProduto } from '../../../Services/produtoService';
 
 type ProdutoApi = {
     produtoId?: number;
@@ -77,15 +77,35 @@ const ListarProdutos: React.FC = () => {
     };
 
     const handleDelete = async (id: number) => {
-        if (window.confirm('Tem certeza que deseja excluir/desativar este produto?')) {
+        if (window.confirm('Tem certeza que deseja excluir permanentemente este produto?')) {
             try {
-                await desativarProduto(id);
+                await excluirProduto(id);
                 carregarProdutos();
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     alert(err.message);
                 } else {
                     alert('Erro ao excluir o produto.');
+                }
+            }
+        }
+    };
+
+    const handleToggleAtivo = async (id: number, ativoAtual: boolean) => {
+        const acao = ativoAtual ? 'inativar' : 'reativar';
+        if (window.confirm(`Tem certeza que deseja ${acao} este produto?`)) {
+            try {
+                if (ativoAtual) {
+                    await desativarProduto(id);
+                } else {
+                    await reativarProduto(id);
+                }
+                carregarProdutos();
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    alert(err.message);
+                } else {
+                    alert(`Erro ao ${acao} o produto.`);
                 }
             }
         }
@@ -217,6 +237,13 @@ const ListarProdutos: React.FC = () => {
                                                                 className="btn-action edit"
                                                             >
                                                                 <Edit size={18} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleToggleAtivo(id, ativo)} 
+                                                                title={ativo ? "Inativar" : "Reativar"} 
+                                                                className={`btn-action ${ativo ? 'deactivate' : 'activate'}`}
+                                                            >
+                                                                {ativo ? <Ban size={18} /> : <CheckCircle size={18} />}
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleDelete(id)} 

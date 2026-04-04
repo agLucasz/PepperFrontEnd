@@ -154,6 +154,18 @@ export async function desativarProduto(id: number): Promise<void> {
 
     if (!response.ok) {
         const errorText = await response.text();
+        throw new Error(errorText || 'Erro ao desativar produto.');
+    }
+}
+
+export async function excluirProduto(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/produto/excluir/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
         throw new Error(errorText || 'Erro ao excluir produto.');
     }
 }

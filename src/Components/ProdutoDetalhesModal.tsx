@@ -17,8 +17,8 @@ interface ProdutoApi {
     Quantidade?: number;
     ativo?: boolean;
     Ativo?: boolean;
-    tamanho?: string[];
-    Tamanho?: string[];
+    tamanho?: string[] | string | number;
+    Tamanho?: string[] | string | number;
     paisCodigoISO?: string;
     PaisCodigoISO?: string;
     imagemUrl?: string;
@@ -48,6 +48,24 @@ const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, on
     // Corrigindo o carregamento da imagem (pegando apenas a primeira URL caso seja separada por vírgula)
     const rawImagemUrl = produto.imagemUrl ?? produto.ImagemUrl;
     const primeiraImagem = rawImagemUrl ? rawImagemUrl.split(',')[0].trim() : '';
+    const TAMANHOS_PADRAO = ['PP', 'P', 'M', 'G', 'GG', 'GGG', 'GGGG'];
+    const normalizeSizeLabel = (value: string) => {
+        const cleaned = value.trim().toUpperCase().replace(/[\s-_]/g, '');
+        if (cleaned === 'NENHUM') return 'NENHUM';
+        const semGenero = cleaned.replace(/(MASCULINO|FEMININO)$/g, '');
+        const matched = TAMANHOS_PADRAO.find(t => semGenero === t || semGenero.startsWith(t));
+        return matched ?? semGenero;
+    };
+    const tamanhosArray = Array.isArray(tamanhos)
+        ? tamanhos
+        : typeof tamanhos === 'string'
+            ? tamanhos.split(',')
+            : typeof tamanhos === 'number'
+                ? [String(tamanhos)]
+                : [];
+    const tamanhosNormalizados = tamanhosArray
+        .map(tamanho => normalizeSizeLabel(String(tamanho)))
+        .filter(Boolean);
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -82,7 +100,7 @@ const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, on
                             <p><strong>Estoque:</strong> {quantidade} un.</p>
                             <p>
                                 <strong>Tamanhos:</strong>{' '}
-                                {tamanhos && tamanhos.length > 0 ? tamanhos.join(', ') : 'Nenhum'}
+                                {tamanhosNormalizados.length > 0 ? tamanhosNormalizados.join(', ') : 'Nenhum'}
                             </p>
                             <p><strong>País (ISO):</strong> {paisISO}</p>
                             <p>

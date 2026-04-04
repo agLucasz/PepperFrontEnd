@@ -33,6 +33,11 @@
   margin-bottom: 30px;
 }
 
+.sidebar-menu-section.bottom-section {
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
 .sidebar-section-title {
   font-size: 0.75rem;
   font-weight: 600;
@@ -74,7 +79,202 @@
   box-shadow: 0 4px 10px rgba(214, 19, 36, 0.3);
 }
 
+.sidebar-nav-item.whatsapp-btn {
+  background-color: #156432;
+  color: #ffffff;
+  margin-top: 10px;
+}
+
+.sidebar-nav-item.whatsapp-btn:hover {
+  background-color: #147c3c;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+}
+
 .sidebar-nav-icon {
   width: 20px;
   height: 20px;
+}
+
+/* Estilos para o submenu expansível */
+.sidebar-submenu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  margin: 0 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #bbbbbb;
+  font-weight: 500;
+  font-size: 0.95rem;
+  background: transparent;
+  border: none;
+  width: calc(100% - 20px);
+  text-align: left;
+}
+
+.sidebar-submenu-trigger:hover, .sidebar-submenu-trigger.active {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+.sidebar-submenu-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 5px;
+  padding-left: 15px; /* Recuo para itens do submenu */
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.sidebar-submenu .sidebar-nav-item {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   ESTILOS DE FILTRO NA SIDEBAR
+   ========================================================================== */
+
+.sidebar-filters-section {
+  background-color: #141414; /* Mesma cor do background da sidebar */
+  margin: 10px 20px;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255,255,255,0.02);
+}
+
+.sidebar-filters-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.sidebar-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.sidebar-filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.sidebar-filter-group label {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  font-weight: 500;
+}
+
+.sidebar-filter-select {
+  background-color: #0f0f0f;
+  color: #ffffff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-filter-select:focus {
+  border-color: #d61324;
+  box-shadow: 0 0 0 2px rgba(214, 19, 36, 0.15);
+}
+
+.sidebar-filter-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-filter-price-inputs span {
+  color: #a1a1aa;
+}
+
+.sidebar-filter-input {
+  background-color: #0f0f0f;
+  color: #ffffff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  width: 100%;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-filter-input:focus {
+  border-color: #d61324;
+  box-shadow: 0 0 0 2px rgba(214, 19, 36, 0.15);
+}
+
+.sidebar-filter-input::placeholder {
+  color: #555;
+}
+
+.sidebar-filter-apply-btn {
+  background-color: #d61324;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 15px;
+  box-shadow: 0 4px 10px rgba(214, 19, 36, 0.2);
+}
+
+.sidebar-filter-apply-btn:hover {
+  background-color: #b90f1d;
+  box-shadow: 0 4px 15px rgba(214, 19, 36, 0.4);
+}
+
+.sidebar-filter-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.sidebar-filter-actions .sidebar-filter-apply-btn {
+  margin-top: 0;
+}
+
+.sidebar-filter-clear-btn {
+  background-color: transparent;
+  color: #d1d5db;
+  border: 1px solid #3f3f46;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.sidebar-filter-clear-btn:hover {
+  background-color: #1f1f1f;
+  border-color: #52525b;
+  color: #ffffff;
 }

@@ -1,35 +1,82 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { X, MessageCircle } from 'lucide-react';
+import type { ProdutoCatalogoApi } from '../Pages/Catalogo';
 import '../Styles/catalogo.css';
 
 interface ProductImageCarouselModalProps {
     isOpen: boolean;
     images: string[];
     onClose: () => void;
-    productName: string;
+    produto: ProdutoCatalogoApi | null;
 }
 
 export const ProductImageCarouselModal: React.FC<ProductImageCarouselModalProps> = ({
     isOpen,
     images,
     onClose,
-    productName
+    produto
 }) => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [selectedSize, setSelectedSize] = useState<string | null>(null);
+    const TAMANHOS_PADRAO = ['PP', 'P', 'M', 'G', 'GG', 'GGG', 'GGGG'];
 
-    if (!isOpen || !images.length) return null;
+    const normalizeSizeLabel = (value: string) => {
+        const cleaned = value.trim().toUpperCase().replace(/[\s-_]/g, '');
+        if (cleaned === 'NENHUM') return 'NENHUM';
+
+        const semGenero = cleaned.replace(/(MASCULINO|FEMININO)$/g, '');
+        const matched = TAMANHOS_PADRAO.find(t => semGenero === t || semGenero.startsWith(t));
+        return matched ?? semGenero;
+    };
+
+    if (!isOpen || !produto) return null;
 
     const handleClose = () => {
-        setCurrentImageIndex(0);
+        setSelectedSize(null);
         onClose();
     };
 
-    const handlePrevImage = () => {
-        setCurrentImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+    const formatPrice = (value: number | undefined) => {
+        if (value === undefined) return 'R$ 0,00';
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
-    const handleNextImage = () => {
-        setCurrentImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+    const nome = produto.nomeProduto || produto.NomeProduto || '';
+    const descricao = produto.descricaoProduto || produto.DescricaoProduto || 'Nenhuma descrição disponível.';
+    const valor = produto.valorVenda || produto.ValorVenda || 0;
+    const tamanhoStr = produto.tamanho || produto.Tamanho || '';
+
+    // Extrair e formatar tamanhos disponíveis
+    const tamanhosDisponiveis = Array.from(
+        new Set(
+            tamanhoStr
+                .split(',')
+                .map(normalizeSizeLabel)
+                .filter(Boolean)
+        )
+    );
+
+    let tamanhosExibicao = [...TAMANHOS_PADRAO];
+    
+    // Se houver tamanhos numéricos ou outros tamanhos que não estão no padrão, adicione-os
+    const outrosTamanhos = tamanhosDisponiveis.filter(t => !tamanhosExibicao.includes(t) && t !== 'NENHUM');
+    if (outrosTamanhos.length > 0) {
+        // Se os tamanhos disponíveis forem APENAS números, não mostraremos PP, P, M...
+        const onlyNumbers = tamanhosDisponiveis.every(t => /^\d+$/.test(t));
+        if (onlyNumbers) {
+            tamanhosExibicao = outrosTamanhos.sort((a, b) => Number(a) - Number(b));
+        } else {
+            tamanhosExibicao = [...tamanhosExibicao, ...outrosTamanhos];
+        }
+    }
+
+    const hasSizes = tamanhosDisponiveis.length > 0 && tamanhosDisponiveis[0] !== 'NENHUM';
+
+    const handleWhatsAppClick = () => {
+        const phoneNumber = '5514981635560'; 
+        const sizeText = selectedSize ? ` no tamanho ${selectedSize}` : '';
+        const message = `Olá! Tenho interesse no produto: ${nome}${sizeText}`;
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
     };
 
     return (
@@ -38,27 +85,54 @@ export const ProductImageCarouselModal: React.FC<ProductImageCarouselModalProps>
                 <button className="catalogo-modal-close" onClick={handleClose}>
                     <X size={24} />
                 </button>
-                <h3 className="catalogo-modal-title">{productName}</h3>
-                <div className="catalogo-modal-carousel-container">
-                    <button className="catalogo-modal-nav-button prev" onClick={handlePrevImage}>
-                        <ChevronLeft size={32} />
-                    </button>
-                    <img
-                        src={images[currentImageIndex]}
-                        alt={`${productName} - Imagem ${currentImageIndex + 1}`}
-                        className="catalogo-modal-image"
-                    />
-                    <button className="catalogo-modal-nav-button next" onClick={handleNextImage}>
-                        <ChevronRight size={32} />
-                    </button>
-                </div>
-                <div className="catalogo-modal-indicators">
-                    {images.map((_, idx) => (
-                        <div
-                            key={idx}
-                            className={`catalogo-modal-indicator-dot ${idx === currentImageIndex ? 'active' : ''}`}
-                        />
+                
+                <div className="catalogo-modal-gallery">
+                    {images.map((img, idx) => (
+                        <div key={idx} className="catalogo-modal-image-wrapper">
+                            <img src={img} alt={`${nome} - Imagem ${idx + 1}`} />
+                        </div>
                     ))}
+                    {images.length === 0 && (
+                        <div className="catalogo-modal-image-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            Sem imagem
+                        </div>
+                    )}
+                </div>
+
+                <div className="catalogo-modal-info">
+                    <h1 className="catalogo-modal-title">{nome}</h1>
+                    <div className="catalogo-modal-price">{formatPrice(valor)}</div>
+                    
+                    <div className="catalogo-modal-description">
+                        <p>{descricao}</p>
+                    </div>
+
+                    {hasSizes && (
+                        <div className="catalogo-modal-sizes">
+                            <div className="catalogo-modal-sizes-header">
+                                <h4 className="catalogo-modal-sizes-title">Tamanhos</h4>
+                            </div>
+                            <div className="catalogo-modal-sizes-grid">
+                                {tamanhosExibicao
+                                    .filter(tamanho => tamanhosDisponiveis.includes(tamanho))
+                                    .map(tamanho => (
+                                        <button
+                                            key={tamanho}
+                                            className={`catalogo-modal-size-btn ${selectedSize === tamanho ? 'selected' : ''}`}
+                                            onClick={() => setSelectedSize(tamanho)}
+                                        >
+                                            {tamanho}
+                                        </button>
+                                    ))
+                                }
+                            </div>
+                        </div>
+                    )}
+
+                    <button className="catalogo-modal-whatsapp-btn" onClick={handleWhatsAppClick}>
+                        <MessageCircle size={20} />
+                        Chamar no WhatsApp
+                    </button>
                 </div>
             </div>
         </div>

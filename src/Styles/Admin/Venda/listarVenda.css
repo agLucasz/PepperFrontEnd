@@ -16,6 +16,78 @@
     color: #e50914;
 }
 
+.listar-vendas-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 16px;
+}
+
+.filtro-periodo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filtro-periodo-grupo label {
+    color: #bdbdbd;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.filtro-periodo-grupo input[type="date"] {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    min-width: 170px;
+}
+
+.filtro-periodo-grupo input[type="date"]:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.btn-limpar-filtro-venda {
+    background-color: transparent;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: fit-content;
+}
+
+.btn-limpar-filtro-venda:hover:not(:disabled) {
+    border-color: #777;
+    background-color: #2a2a2a;
+}
+
+.btn-limpar-filtro-venda:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.listar-vendas-resumo {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    background-color: #232323;
+    border: 1px solid #2f2f2f;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+}
+
+.listar-vendas-resumo p {
+    margin: 0;
+    color: #e6e6e6;
+    font-size: 0.95rem;
+}
+
 .listar-vendas-table-wrapper {
     overflow-x: auto;
 }
@@ -86,4 +158,16 @@
     padding: 40px !important;
     color: #888888;
     font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .listar-vendas-filtros {
+        align-items: stretch;
+    }
+
+    .filtro-periodo-grupo,
+    .filtro-periodo-grupo input[type="date"],
+    .btn-limpar-filtro-venda {
+        width: 100%;
+    }
 }

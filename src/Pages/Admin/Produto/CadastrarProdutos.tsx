@@ -29,17 +29,13 @@ const CadastrarProdutos: React.FC = () => {
     const [showTamanhoModal, setShowTamanhoModal] = useState(false);
 
     const tamanhosOpcoes = [
-        { value: '1', label: 'PP (Masculino)' },
-        { value: '2', label: 'P (Masculino)' },
-        { value: '4', label: 'M (Masculino)' },
-        { value: '8', label: 'G (Masculino)' },
-        { value: '16', label: 'GG (Masculino)' },
-        { value: '32', label: 'XL (Masculino)' },
-        { value: '64', label: 'PP (Feminino)' },
-        { value: '128', label: 'P (Feminino)' },
-        { value: '256', label: 'M (Feminino)' },
-        { value: '512', label: 'G (Feminino)' },
-        { value: '1024', label: 'GG (Feminino)' }
+        { value: '1', label: 'PP' },
+        { value: '2', label: 'P' },
+        { value: '4', label: 'M' },
+        { value: '8', label: 'G' },
+        { value: '16', label: 'GG' },
+        { value: '32', label: 'GGG' },
+        { value: '64', label: 'GGGG' }
     ];
 
     const paisesISO = [

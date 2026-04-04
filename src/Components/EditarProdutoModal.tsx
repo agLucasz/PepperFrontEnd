@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import { X, Save, ArrowUp, ArrowDown } from 'lucide-react';
 import { atualizarProduto, desativarProduto, reativarProduto, type ProdutoUpdateDTO } from '../Services/produtoService';
 import '../Styles/Admin/Produto/editarProdutoModal.css';
 
@@ -33,18 +33,30 @@ interface EditarProdutoModalProps {
 }
 
 const TAMANHOS_DISPONIVEIS = [
-    { value: '1', label: 'PP Masculino' },
-    { value: '2', label: 'P Masculino' },
-    { value: '4', label: 'M Masculino' },
-    { value: '8', label: 'G Masculino' },
-    { value: '16', label: 'GG Masculino' },
-    { value: '32', label: 'XL Masculino' },
-    { value: '64', label: 'PP Feminino' },
-    { value: '128', label: 'P Feminino' },
-    { value: '256', label: 'M Feminino' },
-    { value: '512', label: 'G Feminino' },
-    { value: '1024', label: 'GG Feminino' }
+    { value: '1', label: 'PP' },
+    { value: '2', label: 'P' },
+    { value: '4', label: 'M' },
+    { value: '8', label: 'G' },
+    { value: '16', label: 'GG' },
+    { value: '32', label: 'GGG' },
+    { value: '64', label: 'GGGG' }
 ];
+const TAMANHOS_PADRAO = TAMANHOS_DISPONIVEIS.map(t => t.label);
+
+const normalizeSizeLabel = (value: string) => {
+    const cleaned = value.trim().toUpperCase().replace(/[\s-_]/g, '');
+    if (cleaned === 'NENHUM') return 'NENHUM';
+
+    const semGenero = cleaned.replace(/(MASCULINO|FEMININO)$/g, '');
+    const matched = TAMANHOS_PADRAO.find(t => semGenero === t || semGenero.startsWith(t));
+    return matched ?? semGenero;
+};
+
+const extractImageList = (rawImageUrl: string) =>
+    rawImageUrl
+        .split(/[,\n;]+/)
+        .map(url => url.trim())
+        .filter(Boolean);
 
 const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClose, onUpdateSuccess }) => {
     const [nomeProduto, setNomeProduto] = useState('');
@@ -55,6 +67,8 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
     const [paisCodigoISO, setPaisCodigoISO] = useState('');
     const [ativo, setAtivo] = useState<boolean>(true);
     const [imagemUrl, setImagemUrl] = useState('');
+    const [alterarPosicaoImagens, setAlterarPosicaoImagens] = useState(false);
+    const [imagensOrdenadas, setImagensOrdenadas] = useState<string[]>([]);
     const [tamanhosSelecionados, setTamanhosSelecionados] = useState<string[]>([]);
     
     const [loading, setLoading] = useState(false);
@@ -69,27 +83,22 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
             setQuantidade(produto.quantidade ?? produto.Quantidade ?? 0);
             setPaisCodigoISO(produto.paisCodigoISO ?? produto.PaisCodigoISO ?? '');
             setAtivo(produto.ativo !== undefined ? produto.ativo : (produto.Ativo ?? true));
-            setImagemUrl(produto.imagemUrl ?? produto.ImagemUrl ?? '');
+            const imagemUrlAtual = produto.imagemUrl ?? produto.ImagemUrl ?? '';
+            setImagemUrl(imagemUrlAtual);
+            setAlterarPosicaoImagens(false);
+            setImagensOrdenadas(extractImageList(imagemUrlAtual));
             
-            // O backend retorna uma lista de strings, como ['PMasculino', 'MMasculino']
-            // Precisamos mapear para os values do enum se quisermos manter compatibilidade
-            // Mas no DTO de envio, ele espera array de string onde os valores são os inteiros
-            // Vamos tentar inferir a partir do DTO recebido.
-            // Se o backend retorna strings, precisamos mapear de volta.
-            // Para simplificar, assumimos que vamos usar a UI para recriar as opções.
-            // Idealmente, a API de GET deveria retornar os valores numéricos ou devemos mapear.
-            // Como estamos lidando com strings literais no GET e precisamos enviar numéricos no PUT...
             let nomesTamanhos: string[] = [];
             const rawTamanho = produto.tamanho ?? produto.Tamanho;
             
             if (Array.isArray(rawTamanho)) {
-                nomesTamanhos = rawTamanho;
+                nomesTamanhos = rawTamanho.map(normalizeSizeLabel);
             } else if (typeof rawTamanho === 'string') {
-                nomesTamanhos = (rawTamanho as string).split(',').map(s => s.trim());
+                nomesTamanhos = (rawTamanho as string).split(',').map(normalizeSizeLabel);
             }
 
             const selectedValues = TAMANHOS_DISPONIVEIS
-                .filter(t => nomesTamanhos.includes(t.label.replace(' ', '')))
+                .filter(t => nomesTamanhos.includes(t.label))
                 .map(t => t.value);
             setTamanhosSelecionados(selectedValues);
         }
@@ -103,6 +112,20 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
         setTamanhosSelecionados(prev => 
             prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
         );
+    };
+
+    const handleMoveImage = (index: number, direction: 'up' | 'down') => {
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+        if (targetIndex < 0 || targetIndex >= imagensOrdenadas.length) {
+            return;
+        }
+
+        const novasImagens = [...imagensOrdenadas];
+        [novasImagens[index], novasImagens[targetIndex]] = [novasImagens[targetIndex], novasImagens[index]];
+
+        setImagensOrdenadas(novasImagens);
+        setImagemUrl(novasImagens.join(','));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -121,6 +144,9 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
         try {
             setLoading(true);
             setError(null);
+            const imagemUrlAtualizada = alterarPosicaoImagens
+                ? imagensOrdenadas.join(',')
+                : imagemUrl;
 
             const updateData: ProdutoUpdateDTO = {
                 NomeProduto: nomeProduto,
@@ -130,7 +156,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                 Quantidade: quantidade,
                 PaisCodigoISO: paisCodigoISO,
                 Ativo: ativo,
-                ImagemUrl: imagemUrl,
+                ImagemUrl: imagemUrlAtualizada,
                 Tamanho: tamanhosSelecionados
             };
 
@@ -266,6 +292,64 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                                     Produto Ativo (Visível no catálogo)
                                 </label>
                             </div>
+
+                            <div className="form-group full-width">
+                                <label className="status-toggle">
+                                    <input
+                                        type="checkbox"
+                                        checked={alterarPosicaoImagens}
+                                        onChange={e => setAlterarPosicaoImagens(e.target.checked)}
+                                    />
+                                    Deseja alterar a posição das imagens?
+                                </label>
+                            </div>
+
+                            {alterarPosicaoImagens && (
+                                <div className="form-group full-width">
+                                    <label>Ordem das imagens</label>
+                                    {imagensOrdenadas.length === 0 ? (
+                                        <p className="image-order-empty">Nenhuma imagem cadastrada para este produto.</p>
+                                    ) : (
+                                        <div className="image-order-list">
+                                            {imagensOrdenadas.map((url, index) => (
+                                                <div className="image-order-item" key={`${url}-${index}`}>
+                                                    <img
+                                                        src={url}
+                                                        alt={`Imagem ${index + 1}`}
+                                                        className="image-order-preview"
+                                                    />
+                                                    <div className="image-order-info">
+                                                        <span className="image-order-position">Posição {index + 1}</span>
+                                                        <span className="image-order-url">{url}</span>
+                                                    </div>
+                                                    <div className="image-order-actions">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleMoveImage(index, 'up')}
+                                                            disabled={index === 0}
+                                                            className="image-order-btn"
+                                                            aria-label="Mover imagem para cima"
+                                                        >
+                                                            <ArrowUp size={16} />
+                                                            Subir
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleMoveImage(index, 'down')}
+                                                            disabled={index === imagensOrdenadas.length - 1}
+                                                            className="image-order-btn"
+                                                            aria-label="Mover imagem para baixo"
+                                                        >
+                                                            <ArrowDown size={16} />
+                                                            Descer
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </form>
                 </div>

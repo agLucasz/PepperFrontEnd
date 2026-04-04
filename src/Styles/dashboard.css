@@ -29,3 +29,52 @@
   color: #888888;
   margin: 0;
 }
+
+.catalog-logo-mobile {
+  display: none;
+  max-width: 140px;
+  height: auto;
+}
+
+.catalog-whatsapp-mobile-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-top: 10px;
+  }
+  .catalog-logo-mobile {
+    display: block;
+  }
+  .dashboard-title,
+  .dashboard-subtitle {
+    text-align: center;
+  }
+
+  .catalog-whatsapp-mobile-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #156432;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 300px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .catalog-whatsapp-mobile-btn:hover {
+    background-color: #147c3c;
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+  }
+}

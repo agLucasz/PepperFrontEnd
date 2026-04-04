@@ -19,8 +19,7 @@
 
     /* Catálogo Grid */
     .catalogo-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
     }
 
     /* Ajuste de fontes */
@@ -131,25 +130,69 @@
         display: none !important;
     }
 
+    /* Mover a seção de filtros da Sidebar para o Header do Catálogo no Mobile */
+    .sidebar-filters-section {
+        display: none; /* Oculta da Sidebar original */
+    }
+
+    .mobile-filters-container {
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .mobile-filters-container .sidebar-filters-section {
+        display: block; /* Exibe dentro do container do Header */
+        margin: 20px 0 0 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .mobile-filters-container .sidebar-section-title {
+        display: block; /* Restaura o título "Filtros" que é escondido globalmente no mobile */
+    }
+
+    .mobile-filters-container .sidebar-filter-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
     /* Ajustes no Conteúdo */
     .dashboard-content,
     .admin-dashboard-content {
-        padding: 15px;
+        padding: 4px;
         width: 100%;
     }
 
-    /* Catálogo: Um produto por linha (ocupando toda a tela) */
+    /* Catálogo: Dois produtos por linha em smartphones */
     .catalogo-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        column-gap: 100px !important;
+        row-gap: 10px !important;
+        width: 100%;
     }
 
     .modern-product-card {
-        max-width: 100%;
-        margin: 0 auto;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        border-radius: 12px;
+    }
+    
+    .card-content {
+        padding: 10px;
+    }
+    
+    .card-title {
+        font-size: 0.85rem;
+        -webkit-line-clamp: 4;
+        margin-bottom: 4px;
+    }
+    
+    .card-price {
+        font-size: 1.1rem;
     }
 
-    /* PDV / Cadastrar Venda - Mobile layout (colunas empilhadas) */
     .pdv-layout {
         grid-template-columns: 1fr !important;
     }
@@ -164,8 +207,36 @@
         grid-template-columns: 1fr !important;
     }
     
-    .form-group.half-width {
-        grid-column: 1 / -1 !important;
+    /* Modal Produto (Smartphone) */
+    .catalogo-modal-content {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .catalogo-modal-gallery {
+        flex: 0 0 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        overflow: visible !important;
+    }
+    
+    .catalogo-modal-image-wrapper {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: auto !important;
+        flex-shrink: 0;
+    }
+
+    .catalogo-modal-image-wrapper img {
+        width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+        display: block;
+    }
+
+    .catalogo-modal-close {
+        top: 28px !important;
     }
 }
 
@@ -173,6 +244,24 @@
    SMARTPHONES PEQUENOS - Max width 480px
    -------------------------------------------------------------------------- */
 @media (max-width: 480px) {
+    .mobile-filters-container .sidebar-filter-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-content,
+    .admin-dashboard-content {
+        padding: 2px;
+    }
+
+    .catalogo-container {
+        padding: 12px 6px !important;
+    }
+
+    .catalogo-grid {
+        column-gap: 8px !important;
+        row-gap: 14px !important;
+    }
+
     .dashboard-title,
     .admin-dashboard-title {
         font-size: 1.5rem;

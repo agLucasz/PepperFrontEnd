@@ -13,6 +13,7 @@ import ListarVenda from '../Pages/Admin/Venda/ListarVenda.tsx';
 import Estoque from '../Pages/Admin/Estoque/Estoque.tsx';
 import LancarEstoque from '../Pages/Admin/Estoque/LancarEstoque.tsx';
 import ListarEstoque from '../Pages/Admin/Estoque/ListarEstoque.tsx';
+import CadastrarEmpresa from '../Pages/Admin/Empresa/CadastrarEmpresa.tsx';
 import { Catalogo } from '../Pages/Catalogo.tsx';
 
 const AppRoutes: React.FC = () => {
@@ -32,6 +33,7 @@ const AppRoutes: React.FC = () => {
             <Route path="/admin/estoque" element={<Estoque />} />
             <Route path="/admin/estoque/lancar" element={<LancarEstoque />} />
             <Route path="/admin/estoque/listar" element={<ListarEstoque />} />
+            <Route path="/admin/empresa/cadastrar" element={<CadastrarEmpresa />} />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
