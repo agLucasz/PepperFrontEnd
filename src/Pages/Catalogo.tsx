@@ -7,14 +7,7 @@ import { MessageCircle, Search } from 'lucide-react';
 import '../Styles/catalogo.css';
 import '../Styles/dashboard.css';
 import logo from '../Assets/logo_pepper.png';
-
-const API_BASE_URL = 'https://localhost:7035';
-const PRODUTO_HUB_URL = `${API_BASE_URL}/produtoHub`;
-
-const formatTamanho = (tamanhoString: string) => {
-    if (!tamanhoString || tamanhoString === 'Nenhum') return '';
-    return tamanhoString;
-};
+import { API_BASE_URL, PRODUTO_HUB_URL } from '../config/api';
 
 export type ProdutoCatalogoApi = {
     produtoId?: number;
@@ -40,10 +33,8 @@ interface ProdutoCardProps {
 
 const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
     const nome: string = (produto.nomeProduto || produto.NomeProduto) ?? '';
-    const descricao = produto.descricaoProduto || produto.DescricaoProduto;
     const imagemUrlString = produto.imagemUrl || produto.ImagemUrl;
     const preco = produto.valorVenda || produto.ValorVenda || 0;
-    const tamanho = produto.tamanho || produto.Tamanho || '';
 
     const imagensRelativas = imagemUrlString 
         ? imagemUrlString.split(',').map((url: string) => url.trim()).filter((url: string) => url !== '')

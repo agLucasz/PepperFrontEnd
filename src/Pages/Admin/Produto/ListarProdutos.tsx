@@ -6,6 +6,7 @@ import ProdutoDetalhesModal from '../../../Components/ProdutoDetalhesModal';
 import '../../../Styles/Admin/adminDashBoard.css';
 import '../../../Styles/Admin/Produto/ListarProdutos.css'; // Importação do CSS externo
 import { listarProdutos, desativarProduto, excluirProduto, reativarProduto } from '../../../Services/produtoService';
+import { API_BASE_URL } from '../../../config/api';
 
 type ProdutoApi = {
     produtoId?: number;
@@ -38,7 +39,6 @@ const ListarProdutos: React.FC = () => {
     const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
     const [selectedProduto, setSelectedProduto] = useState<ProdutoApi | null>(null);
     const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
-    const API_BASE_URL = 'https://localhost:7035';
 
     useEffect(() => {
         carregarProdutos();
@@ -188,6 +188,7 @@ const ListarProdutos: React.FC = () => {
                                             const preco = produto.valorVenda || produto.ValorVenda;
                                             const quantidade = produto.quantidade ?? produto.Quantidade ?? 0;
                                             const ativo = produto.ativo !== undefined ? produto.ativo : produto.Ativo;
+                                            const ativoFlag = Boolean(ativo);
 
                                             return (
                                                 <tr key={id}>
@@ -217,9 +218,9 @@ const ListarProdutos: React.FC = () => {
                                                         </span>
                                                     </td>
                                                     <td className="text-center">
-                                                        <span className={`status-badge ${ativo ? 'ativo' : 'inativo'}`}>
-                                                            <span className={`status-dot ${ativo ? 'ativo' : 'inativo'}`}></span>
-                                                            {ativo ? 'Ativo' : 'Inativo'}
+                                                        <span className={`status-badge ${ativoFlag ? 'ativo' : 'inativo'}`}>
+                                                            <span className={`status-dot ${ativoFlag ? 'ativo' : 'inativo'}`}></span>
+                                                            {ativoFlag ? 'Ativo' : 'Inativo'}
                                                         </span>
                                                     </td>
                                                     <td className="td-actions">
@@ -239,11 +240,11 @@ const ListarProdutos: React.FC = () => {
                                                                 <Edit size={18} />
                                                             </button>
                                                             <button 
-                                                                onClick={() => handleToggleAtivo(id, ativo)} 
-                                                                title={ativo ? "Inativar" : "Reativar"} 
-                                                                className={`btn-action ${ativo ? 'deactivate' : 'activate'}`}
+                                                                onClick={() => handleToggleAtivo(id, ativoFlag)} 
+                                                                title={ativoFlag ? "Inativar" : "Reativar"} 
+                                                                className={`btn-action ${ativoFlag ? 'deactivate' : 'activate'}`}
                                                             >
-                                                                {ativo ? <Ban size={18} /> : <CheckCircle size={18} />}
+                                                                {ativoFlag ? <Ban size={18} /> : <CheckCircle size={18} />}
                                                             </button>
                                                             <button 
                                                                 onClick={() => handleDelete(id)} 

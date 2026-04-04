@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://localhost:7035';
+import { API_BASE_URL } from '../config/api';
 
 export interface PaisApi {
     nome: string;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import '../Styles/Admin/Produto/produtoDetalhesModal.css';
+import { API_BASE_URL } from '../config/api';
 
 interface ProdutoApi {
     produtoId?: number;
@@ -33,8 +34,6 @@ interface ProdutoDetalhesModalProps {
 const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, onClose }) => {
     if (!produto) return null;
 
-    const API_BASE_URL = 'https://localhost:7035';
-    
     const id = produto.produtoId ?? produto.ProdutoId;
     const nome = produto.nomeProduto ?? produto.NomeProduto;
     const descricao = produto.descricaoProduto ?? produto.DescricaoProduto ?? 'Nenhuma descrição informada';
