@@ -7,7 +7,7 @@ import { MessageCircle, Search } from 'lucide-react';
 import '../Styles/catalogo.css';
 import '../Styles/dashboard.css';
 import logo from '../Assets/logo_pepper.png';
-import { API_BASE_URL, PRODUTO_HUB_URL } from '../config/api';
+import { PRODUTO_HUB_URL, resolveImageUrl } from '../config/api';
 
 export type ProdutoCatalogoApi = {
     produtoId?: number;
@@ -40,7 +40,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
         ? imagemUrlString.split(',').map((url: string) => url.trim()).filter((url: string) => url !== '')
         : [];
 
-    const imagens = imagensRelativas.map((url: string) => `${API_BASE_URL}${url}`);
+    const imagens = imagensRelativas.map((url: string) => resolveImageUrl(url)).filter(Boolean);
     const primeiraImagem = imagens[0];
 
     return (
@@ -215,7 +215,7 @@ export const Catalogo: React.FC = () => {
 
     const handleWhatsAppClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        const phoneNumber = '5511999999999'; // Substitua pelo número real da empresa
+        const phoneNumber = '5514981635560'; 
         const message = 'Olá! Gostaria de ver mais modelos e tirar dúvidas.';
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');

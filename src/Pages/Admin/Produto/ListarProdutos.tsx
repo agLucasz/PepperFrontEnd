@@ -6,7 +6,7 @@ import ProdutoDetalhesModal from '../../../Components/ProdutoDetalhesModal';
 import '../../../Styles/Admin/adminDashBoard.css';
 import '../../../Styles/Admin/Produto/ListarProdutos.css'; // Importação do CSS externo
 import { listarProdutos, desativarProduto, excluirProduto, reativarProduto } from '../../../Services/produtoService';
-import { API_BASE_URL } from '../../../config/api';
+import { resolveImageUrl } from '../../../config/api';
 
 type ProdutoApi = {
     produtoId?: number;
@@ -197,7 +197,7 @@ const ListarProdutos: React.FC = () => {
                                                         <div className="produto-info">
                                                             {primeiraImagem ? (
                                                                 <img 
-                                                                    src={`${API_BASE_URL}${primeiraImagem}`} 
+                                                                    src={resolveImageUrl(primeiraImagem)} 
                                                                     alt={nome} 
                                                                     className="produto-img" 
                                                                 />

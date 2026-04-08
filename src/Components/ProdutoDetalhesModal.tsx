@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 import '../Styles/Admin/Produto/produtoDetalhesModal.css';
-import { API_BASE_URL } from '../config/api';
+import { resolveImageUrl } from '../config/api';
 
 interface ProdutoApi {
     produtoId?: number;
@@ -81,7 +81,7 @@ const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, on
                         <div className="produto-detalhes-imagem-container">
                             {primeiraImagem ? (
                                 <img 
-                                    src={`${API_BASE_URL}${primeiraImagem}`} 
+                                    src={resolveImageUrl(primeiraImagem)} 
                                     alt={nome} 
                                     className="produto-detalhes-img"
                                 />

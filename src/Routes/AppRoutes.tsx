@@ -16,24 +16,47 @@ import ListarEstoque from '../Pages/Admin/Estoque/ListarEstoque.tsx';
 import CadastrarEmpresa from '../Pages/Admin/Empresa/CadastrarEmpresa.tsx';
 import { Catalogo } from '../Pages/Catalogo.tsx';
 
+function isAuthenticated(): boolean {
+    try {
+        const authRaw = localStorage.getItem('pepperAuth');
+        if (!authRaw) return false;
+        const auth = JSON.parse(authRaw) as { token?: string };
+        return Boolean(auth?.token);
+    } catch {
+        return false;
+    }
+}
+
+type GuardProps = {
+    children: React.ReactElement;
+};
+
+const ProtectedRoute: React.FC<GuardProps> = ({ children }) => {
+    return isAuthenticated() ? children : <Navigate to="/adminLogin" replace />;
+};
+
+const PublicAdminLoginRoute: React.FC<GuardProps> = ({ children }) => {
+    return isAuthenticated() ? <Navigate to="/admin/dashboard" replace /> : children;
+};
+
 const AppRoutes: React.FC = () => {
     return (
         <Routes>
             <Route path="/" element={<App />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/catalogo" element={<Catalogo />} />
-            <Route path="/adminLogin" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-            <Route path="/admin/produtos" element={<Produtos />} />
-            <Route path="/admin/produtos/cadastrar" element={<CadastrarProdutos />} />
-            <Route path="/admin/produtos/listar" element={<ListarProdutos />} />
-            <Route path="/admin/vendas" element={<Vendas />} />
-            <Route path="/admin/vendas/cadastrar" element={<CadastrarVenda />} />
-            <Route path="/admin/vendas/listar" element={<ListarVenda />} />
-            <Route path="/admin/estoque" element={<Estoque />} />
-            <Route path="/admin/estoque/lancar" element={<LancarEstoque />} />
-            <Route path="/admin/estoque/listar" element={<ListarEstoque />} />
-            <Route path="/admin/empresa/cadastrar" element={<CadastrarEmpresa />} />
+            <Route path="/adminLogin" element={<PublicAdminLoginRoute><AdminLogin /></PublicAdminLoginRoute>} />
+            <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashBoard /></ProtectedRoute>} />
+            <Route path="/admin/produtos" element={<ProtectedRoute><Produtos /></ProtectedRoute>} />
+            <Route path="/admin/produtos/cadastrar" element={<ProtectedRoute><CadastrarProdutos /></ProtectedRoute>} />
+            <Route path="/admin/produtos/listar" element={<ProtectedRoute><ListarProdutos /></ProtectedRoute>} />
+            <Route path="/admin/vendas" element={<ProtectedRoute><Vendas /></ProtectedRoute>} />
+            <Route path="/admin/vendas/cadastrar" element={<ProtectedRoute><CadastrarVenda /></ProtectedRoute>} />
+            <Route path="/admin/vendas/listar" element={<ProtectedRoute><ListarVenda /></ProtectedRoute>} />
+            <Route path="/admin/estoque" element={<ProtectedRoute><Estoque /></ProtectedRoute>} />
+            <Route path="/admin/estoque/lancar" element={<ProtectedRoute><LancarEstoque /></ProtectedRoute>} />
+            <Route path="/admin/estoque/listar" element={<ProtectedRoute><ListarEstoque /></ProtectedRoute>} />
+            <Route path="/admin/empresa/cadastrar" element={<ProtectedRoute><CadastrarEmpresa /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );
