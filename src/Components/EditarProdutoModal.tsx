@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, ArrowUp, ArrowDown } from 'lucide-react';
 import { atualizarProduto, desativarProduto, reativarProduto, type ProdutoUpdateDTO } from '../Services/produtoService';
+import { listarCategorias, type CategoriaDTO } from '../Services/categoriaService';
 import '../Styles/Admin/Produto/editarProdutoModal.css';
 
 interface ProdutoApi {
@@ -20,8 +21,10 @@ interface ProdutoApi {
     Ativo?: boolean;
     tamanho?: string[];
     Tamanho?: string[];
-    paisCodigoISO?: string;
-    PaisCodigoISO?: string;
+    categoriaId?: number;
+    CategoriaId?: number;
+    nomeCategoria?: string;
+    NomeCategoria?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
 }
@@ -46,17 +49,13 @@ const TAMANHOS_PADRAO = TAMANHOS_DISPONIVEIS.map(t => t.label);
 const normalizeSizeLabel = (value: string) => {
     const cleaned = value.trim().toUpperCase().replace(/[\s-_]/g, '');
     if (cleaned === 'NENHUM') return 'NENHUM';
-
     const semGenero = cleaned.replace(/(MASCULINO|FEMININO)$/g, '');
     const matched = TAMANHOS_PADRAO.find(t => semGenero === t || semGenero.startsWith(t));
     return matched ?? semGenero;
 };
 
 const extractImageList = (rawImageUrl: string) =>
-    rawImageUrl
-        .split(/[,\n;]+/)
-        .map(url => url.trim())
-        .filter(Boolean);
+    rawImageUrl.split(/[,\n;]+/).map(url => url.trim()).filter(Boolean);
 
 const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClose, onUpdateSuccess }) => {
     const [nomeProduto, setNomeProduto] = useState('');
@@ -64,15 +63,19 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
     const [valorCompra, setValorCompra] = useState<number>(0);
     const [valorVenda, setValorVenda] = useState<number>(0);
     const [quantidade, setQuantidade] = useState<number>(0);
-    const [paisCodigoISO, setPaisCodigoISO] = useState('');
+    const [categoriaId, setCategoriaId] = useState<number>(0);
     const [ativo, setAtivo] = useState<boolean>(true);
     const [imagemUrl, setImagemUrl] = useState('');
     const [alterarPosicaoImagens, setAlterarPosicaoImagens] = useState(false);
     const [imagensOrdenadas, setImagensOrdenadas] = useState<string[]>([]);
     const [tamanhosSelecionados, setTamanhosSelecionados] = useState<string[]>([]);
-    
+    const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        listarCategorias().then(setCategorias).catch(() => {});
+    }, []);
 
     useEffect(() => {
         if (produto) {
@@ -81,26 +84,24 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
             setValorCompra(produto.valorCompra ?? produto.ValorCompra ?? 0);
             setValorVenda(produto.valorVenda ?? produto.ValorVenda ?? 0);
             setQuantidade(produto.quantidade ?? produto.Quantidade ?? 0);
-            setPaisCodigoISO(produto.paisCodigoISO ?? produto.PaisCodigoISO ?? '');
+            setCategoriaId(produto.categoriaId ?? produto.CategoriaId ?? 0);
             setAtivo(produto.ativo !== undefined ? produto.ativo : (produto.Ativo ?? true));
+
             const imagemUrlAtual = produto.imagemUrl ?? produto.ImagemUrl ?? '';
             setImagemUrl(imagemUrlAtual);
             setAlterarPosicaoImagens(false);
             setImagensOrdenadas(extractImageList(imagemUrlAtual));
-            
-            let nomesTamanhos: string[] = [];
+
             const rawTamanho = produto.tamanho ?? produto.Tamanho;
-            
+            let nomesTamanhos: string[] = [];
             if (Array.isArray(rawTamanho)) {
                 nomesTamanhos = rawTamanho.map(normalizeSizeLabel);
             } else if (typeof rawTamanho === 'string') {
                 nomesTamanhos = (rawTamanho as string).split(',').map(normalizeSizeLabel);
             }
-
-            const selectedValues = TAMANHOS_DISPONIVEIS
-                .filter(t => nomesTamanhos.includes(t.label))
-                .map(t => t.value);
-            setTamanhosSelecionados(selectedValues);
+            setTamanhosSelecionados(
+                TAMANHOS_DISPONIVEIS.filter(t => nomesTamanhos.includes(t.label)).map(t => t.value)
+            );
         }
     }, [produto]);
 
@@ -109,34 +110,25 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
     const id = produto.produtoId ?? produto.ProdutoId;
 
     const handleTamanhoChange = (value: string) => {
-        setTamanhosSelecionados(prev => 
+        setTamanhosSelecionados(prev =>
             prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
         );
     };
 
     const handleMoveImage = (index: number, direction: 'up' | 'down') => {
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
-
-        if (targetIndex < 0 || targetIndex >= imagensOrdenadas.length) {
-            return;
-        }
-
-        const novasImagens = [...imagensOrdenadas];
-        [novasImagens[index], novasImagens[targetIndex]] = [novasImagens[targetIndex], novasImagens[index]];
-
-        setImagensOrdenadas(novasImagens);
-        setImagemUrl(novasImagens.join(','));
+        if (targetIndex < 0 || targetIndex >= imagensOrdenadas.length) return;
+        const novas = [...imagensOrdenadas];
+        [novas[index], novas[targetIndex]] = [novas[targetIndex], novas[index]];
+        setImagensOrdenadas(novas);
+        setImagemUrl(novas.join(','));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!id) {
-            setError('ID do produto inválido.');
-            return;
-        }
 
-        if (!nomeProduto || valorCompra <= 0 || valorVenda <= 0 || !paisCodigoISO) {
+        if (!id) { setError('ID do produto inválido.'); return; }
+        if (!nomeProduto || valorCompra <= 0 || valorVenda <= 0 || !categoriaId) {
             setError('Por favor, preencha todos os campos obrigatórios corretamente.');
             return;
         }
@@ -144,9 +136,8 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
         try {
             setLoading(true);
             setError(null);
-            const imagemUrlAtualizada = alterarPosicaoImagens
-                ? imagensOrdenadas.join(',')
-                : imagemUrl;
+
+            const imagemUrlAtualizada = alterarPosicaoImagens ? imagensOrdenadas.join(',') : imagemUrl;
 
             const updateData: ProdutoUpdateDTO = {
                 NomeProduto: nomeProduto,
@@ -154,7 +145,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                 ValorCompra: valorCompra,
                 ValorVenda: valorVenda,
                 Quantidade: quantidade,
-                PaisCodigoISO: paisCodigoISO,
+                CategoriaId: categoriaId,
                 Ativo: ativo,
                 ImagemUrl: imagemUrlAtualizada,
                 Tamanho: tamanhosSelecionados
@@ -162,7 +153,6 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
 
             await atualizarProduto(id, updateData);
 
-            // Verifica se o status mudou e precisa chamar a API específica
             const statusOriginal = produto.ativo !== undefined ? produto.ativo : (produto.Ativo ?? true);
             if (statusOriginal !== ativo) {
                 if (ativo) {
@@ -174,11 +164,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
 
             onUpdateSuccess();
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Erro desconhecido ao atualizar o produto.');
-            }
+            setError(err instanceof Error ? err.message : 'Erro desconhecido ao atualizar o produto.');
         } finally {
             setLoading(false);
         }
@@ -196,24 +182,24 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
 
                 <div className="editar-produto-body">
                     {error && <div className="error-message">{error}</div>}
-                    
+
                     <form id="editarProdutoForm" onSubmit={handleSubmit}>
                         <div className="editar-produto-form-grid">
                             <div className="form-group full-width">
                                 <label>Nome do Produto *</label>
-                                <input 
-                                    type="text" 
-                                    value={nomeProduto} 
-                                    onChange={e => setNomeProduto(e.target.value)} 
-                                    required 
+                                <input
+                                    type="text"
+                                    value={nomeProduto}
+                                    onChange={e => setNomeProduto(e.target.value)}
+                                    required
                                     placeholder="Ex: Camiseta Básica"
                                 />
                             </div>
 
                             <div className="form-group full-width">
                                 <label>Descrição</label>
-                                <textarea 
-                                    value={descricaoProduto} 
+                                <textarea
+                                    value={descricaoProduto}
                                     onChange={e => setDescricaoProduto(e.target.value)}
                                     placeholder="Descrição detalhada do produto"
                                 />
@@ -221,49 +207,53 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
 
                             <div className="form-group quarter-width">
                                 <label>Valor Compra (R$)*</label>
-                                <input 
-                                    type="number" 
-                                    step="0.01" 
+                                <input
+                                    type="number"
+                                    step="0.01"
                                     min="0"
-                                    value={valorCompra} 
-                                    onChange={e => setValorCompra(parseFloat(e.target.value))} 
-                                    required 
+                                    value={valorCompra}
+                                    onChange={e => setValorCompra(parseFloat(e.target.value))}
+                                    required
                                 />
                             </div>
 
                             <div className="form-group quarter-width">
                                 <label>Valor Venda (R$)*</label>
-                                <input 
-                                    type="number" 
-                                    step="0.01" 
+                                <input
+                                    type="number"
+                                    step="0.01"
                                     min="0"
-                                    value={valorVenda} 
-                                    onChange={e => setValorVenda(parseFloat(e.target.value))} 
-                                    required 
+                                    value={valorVenda}
+                                    onChange={e => setValorVenda(parseFloat(e.target.value))}
+                                    required
                                 />
                             </div>
 
                             <div className="form-group quarter-width">
                                 <label>Estoque *</label>
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     min="0"
-                                    value={quantidade} 
-                                    onChange={e => setQuantidade(parseInt(e.target.value))} 
-                                    required 
+                                    value={quantidade}
+                                    onChange={e => setQuantidade(parseInt(e.target.value))}
+                                    required
                                 />
                             </div>
 
                             <div className="form-group quarter-width">
-                                <label>País (ISO) *</label>
-                                <input 
-                                    type="text" 
-                                    maxLength={2}
-                                    value={paisCodigoISO} 
-                                    onChange={e => setPaisCodigoISO(e.target.value.toUpperCase())} 
-                                    required 
-                                    placeholder="BR, US..."
-                                />
+                                <label>Categoria *</label>
+                                <select
+                                    value={categoriaId}
+                                    onChange={e => setCategoriaId(Number(e.target.value))}
+                                    required
+                                >
+                                    <option value={0} disabled>Selecione...</option>
+                                    {categorias.map(cat => (
+                                        <option key={cat.categoriaId} value={cat.categoriaId}>
+                                            {cat.nomeCategoria}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="form-group full-width">
@@ -271,8 +261,8 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                                 <div className="tamanhos-container">
                                     {TAMANHOS_DISPONIVEIS.map(t => (
                                         <label key={t.value} className="tamanho-checkbox">
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 checked={tamanhosSelecionados.includes(t.value)}
                                                 onChange={() => handleTamanhoChange(t.value)}
                                             />
@@ -284,8 +274,8 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
 
                             <div className="form-group full-width" style={{ marginTop: '0.5rem' }}>
                                 <label className="status-toggle">
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         checked={ativo}
                                         onChange={e => setAtivo(e.target.checked)}
                                     />
@@ -313,11 +303,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                                         <div className="image-order-list">
                                             {imagensOrdenadas.map((url, index) => (
                                                 <div className="image-order-item" key={`${url}-${index}`}>
-                                                    <img
-                                                        src={url}
-                                                        alt={`Imagem ${index + 1}`}
-                                                        className="image-order-preview"
-                                                    />
+                                                    <img src={url} alt={`Imagem ${index + 1}`} className="image-order-preview" />
                                                     <div className="image-order-info">
                                                         <span className="image-order-position">Posição {index + 1}</span>
                                                         <span className="image-order-url">{url}</span>
@@ -328,20 +314,16 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                                                             onClick={() => handleMoveImage(index, 'up')}
                                                             disabled={index === 0}
                                                             className="image-order-btn"
-                                                            aria-label="Mover imagem para cima"
                                                         >
-                                                            <ArrowUp size={16} />
-                                                            Subir
+                                                            <ArrowUp size={16} /> Subir
                                                         </button>
                                                         <button
                                                             type="button"
                                                             onClick={() => handleMoveImage(index, 'down')}
                                                             disabled={index === imagensOrdenadas.length - 1}
                                                             className="image-order-btn"
-                                                            aria-label="Mover imagem para baixo"
                                                         >
-                                                            <ArrowDown size={16} />
-                                                            Descer
+                                                            <ArrowDown size={16} /> Descer
                                                         </button>
                                                     </div>
                                                 </div>

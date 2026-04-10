@@ -167,8 +167,8 @@
     /* Catálogo: Dois produtos por linha em smartphones */
     .catalogo-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        column-gap: 100px !important;
-        row-gap: 10px !important;
+        column-gap: 12px !important;
+        row-gap: 16px !important;
         width: 100%;
     }
 
@@ -178,19 +178,20 @@
         margin: 0;
         border-radius: 12px;
     }
-    
+
     .card-content {
         padding: 10px;
     }
-    
+
     .card-title {
-        font-size: 0.85rem;
-        -webkit-line-clamp: 4;
-        margin-bottom: 4px;
+        font-size: 0.82rem;
+        -webkit-line-clamp: 3;
+        margin-bottom: 6px;
     }
-    
+
     .card-price {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        font-weight: 700;
     }
 
     .pdv-layout {
@@ -235,8 +236,54 @@
         display: block;
     }
 
+    /* Botão X: desce para não ficar colado à borda do bottom sheet */
     .catalogo-modal-close {
-        top: 28px !important;
+        top: 20px !important;
+        right: 16px !important;
+        width: 40px !important;
+        height: 40px !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    /* Modal: padding-top para o X não sobrepor o título */
+    .catalogo-modal-content {
+        padding-top: 72px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: 24px !important;
+    }
+
+    /* Título menor no mobile */
+    .catalogo-modal-title {
+        font-size: 1.4rem !important;
+    }
+
+    /* Preço menor */
+    .catalogo-modal-price {
+        font-size: 1.4rem !important;
+    }
+
+    /* Descrição com fonte menor */
+    .catalogo-modal-description {
+        font-size: 0.95rem !important;
+    }
+
+    /* Botões de tamanho maiores para toque */
+    .catalogo-modal-sizes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)) !important;
+        gap: 10px !important;
+    }
+
+    .catalogo-modal-size-btn {
+        padding: 14px 8px !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* WhatsApp mais destacado e colado ao fundo */
+    .catalogo-modal-whatsapp-btn {
+        padding: 18px !important;
+        font-size: 1rem !important;
+        margin-top: 16px !important;
     }
 }
 
@@ -254,12 +301,20 @@
     }
 
     .catalogo-container {
-        padding: 12px 6px !important;
+        padding: 12px 10px !important;
     }
 
     .catalogo-grid {
-        column-gap: 8px !important;
+        column-gap: 10px !important;
         row-gap: 14px !important;
+    }
+
+    .catalogo-modal-title {
+        font-size: 1.2rem !important;
+    }
+
+    .catalogo-modal-sizes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(68px, 1fr)) !important;
     }
 
     .dashboard-title,

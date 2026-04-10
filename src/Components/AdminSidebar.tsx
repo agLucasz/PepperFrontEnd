@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, LogOut, PackagePlus, Building, Wallet, ChevronDown, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, PackagePlus, Building, Wallet, ChevronDown, ChevronRight, Tag } from 'lucide-react';
 import '../Styles/sidebar.css';
 import logo from '../Assets/logo_pepper.png';
 
@@ -35,14 +35,22 @@ const AdminSidebar: React.FC = () => {
                         <LayoutDashboard className="sidebar-nav-icon" />
                         Dashboard
                     </NavLink>
-                    <NavLink 
-                        to="/admin/produtos" 
+                    <NavLink
+                        to="/admin/produtos"
                         className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
                     >
                         <Package className="sidebar-nav-icon" />
                         Produtos
                     </NavLink>
-                    
+
+                    <NavLink
+                        to="/admin/categorias"
+                        className={({ isActive }) => `sidebar-nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <Tag className="sidebar-nav-icon" />
+                        Categorias
+                    </NavLink>
+
                     {/* Submenu Financeiro */}
                     <div>
                         <button 

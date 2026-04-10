@@ -22,8 +22,10 @@ export type ProdutoCatalogoApi = {
     Tamanho?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
-    paisCodigoISO?: string;
-    PaisCodigoISO?: string;
+    categoriaId?: number;
+    CategoriaId?: number;
+    nomeCategoria?: string;
+    NomeCategoria?: string;
 };
 
 interface ProdutoCardProps {
@@ -84,10 +86,8 @@ export const Catalogo: React.FC = () => {
     const [modalProduto, setModalProduto] = useState<ProdutoCatalogoApi | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sidebarFilters, setSidebarFilters] = useState<CatalogFilters>({
-        pais: '',
-        tamanho: '',
-        precoMin: '',
-        precoMax: ''
+        categoria: '',
+        tamanho: ''
     });
 
     const carregarCatalogo = useCallback(async (showLoading: boolean = true) => {
@@ -189,17 +189,13 @@ export const Catalogo: React.FC = () => {
         const nome = (p.nomeProduto || p.NomeProduto || '').toLowerCase();
         const matchesSearch = nome.includes(searchTerm.toLowerCase());
 
-        const preco = p.valorVenda || p.ValorVenda || 0;
-        const matchesPrecoMin = sidebarFilters.precoMin ? preco >= Number(sidebarFilters.precoMin) : true;
-        const matchesPrecoMax = sidebarFilters.precoMax ? preco <= Number(sidebarFilters.precoMax) : true;
-
         const tamanhoStr = (p.tamanho || p.Tamanho || '');
         const matchesTamanho = sidebarFilters.tamanho ? tamanhoStr.includes(sidebarFilters.tamanho) : true;
 
-        const pais = (p.paisCodigoISO || p.PaisCodigoISO || '');
-        const matchesPais = sidebarFilters.pais ? pais === sidebarFilters.pais : true;
+        const catId = String(p.categoriaId ?? p.CategoriaId ?? '');
+        const matchesCategoria = sidebarFilters.categoria ? catId === sidebarFilters.categoria : true;
 
-        return matchesSearch && matchesPrecoMin && matchesPrecoMax && matchesTamanho && matchesPais;
+        return matchesSearch && matchesTamanho && matchesCategoria;
     });
 
     const totalPages = Math.ceil(produtosFiltrados.length / pageSize) || 1;

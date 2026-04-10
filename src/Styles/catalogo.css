@@ -595,7 +595,7 @@
   color: #ffffff;
 }
 
-/* Correção final do modal no smartphone: sem recorte e com scroll no modal inteiro */
+/* Correções mobile do modal — layout e galeria */
 @media (max-width: 768px) {
   .catalogo-modal-content {
     justify-content: flex-start !important;
@@ -603,7 +603,6 @@
     overflow-y: auto !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
-    padding-top: 64px !important;
   }
 
   .catalogo-modal-gallery {

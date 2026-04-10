@@ -7,7 +7,7 @@ export interface ProdutoCreateDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    PaisCodigoISO: string;
+    CategoriaId: number;
     ImagemUrl: string;
 }
 
@@ -18,7 +18,7 @@ export interface ProdutoUpdateDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    PaisCodigoISO: string;
+    CategoriaId: number;
     ImagemUrl?: string;
     Ativo: boolean;
 }
@@ -31,7 +31,8 @@ export interface ProdutoDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    PaisCodigoISO: string;
+    CategoriaId: number;
+    NomeCategoria: string;
     Ativo: boolean;
     ImagemUrl?: string;
 }
@@ -43,6 +44,8 @@ export interface ProdutoCatalogoDTO {
     valorVenda: number;
     tamanho: string;
     imagemUrl?: string;
+    categoriaId: number;
+    nomeCategoria: string;
 }
 
 interface UploadImageResponseDTO {
@@ -52,7 +55,6 @@ interface UploadImageResponseDTO {
 function getAuthHeaders(): Record<string, string> {
     const authData = localStorage.getItem('pepperAuth');
     const token = authData ? JSON.parse(authData).token : '';
-
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -135,7 +137,6 @@ export async function listarProdutos(): Promise<ProdutoDTO[]> {
 export async function listarCatalogo(): Promise<ProdutoCatalogoDTO[]> {
     const response = await fetch(`${API_BASE_URL}/api/produto/catalogo`, {
         method: 'GET'
-        // Catalogo geralmente é público, não precisa de token.
     });
 
     if (!response.ok) {

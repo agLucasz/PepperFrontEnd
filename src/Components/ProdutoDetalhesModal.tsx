@@ -20,8 +20,10 @@ interface ProdutoApi {
     Ativo?: boolean;
     tamanho?: string[] | string | number;
     Tamanho?: string[] | string | number;
-    paisCodigoISO?: string;
-    PaisCodigoISO?: string;
+    categoriaId?: number;
+    CategoriaId?: number;
+    nomeCategoria?: string;
+    NomeCategoria?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
 }
@@ -42,7 +44,7 @@ const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, on
     const quantidade = produto.quantidade ?? produto.Quantidade ?? 0;
     const ativo = produto.ativo !== undefined ? produto.ativo : produto.Ativo;
     const tamanhos = produto.tamanho ?? produto.Tamanho;
-    const paisISO = produto.paisCodigoISO ?? produto.PaisCodigoISO;
+    const nomeCategoria = produto.nomeCategoria ?? produto.NomeCategoria;
     
     // Corrigindo o carregamento da imagem (pegando apenas a primeira URL caso seja separada por vírgula)
     const rawImagemUrl = produto.imagemUrl ?? produto.ImagemUrl;
@@ -101,7 +103,7 @@ const ProdutoDetalhesModal: React.FC<ProdutoDetalhesModalProps> = ({ produto, on
                                 <strong>Tamanhos:</strong>{' '}
                                 {tamanhosNormalizados.length > 0 ? tamanhosNormalizados.join(', ') : 'Nenhum'}
                             </p>
-                            <p><strong>País (ISO):</strong> {paisISO}</p>
+                            <p><strong>Categoria:</strong> {nomeCategoria || '—'}</p>
                             <p>
                                 <strong>Status:</strong>{' '}
                                 <span className={`status-text ${ativo ? 'ativo' : 'inativo'}`}>

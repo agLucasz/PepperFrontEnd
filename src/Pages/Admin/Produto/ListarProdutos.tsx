@@ -25,8 +25,10 @@ type ProdutoApi = {
     Ativo?: boolean;
     tamanho?: string[];
     Tamanho?: string[];
-    paisCodigoISO?: string;
-    PaisCodigoISO?: string;
+    categoriaId?: number;
+    CategoriaId?: number;
+    nomeCategoria?: string;
+    NomeCategoria?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
 };
