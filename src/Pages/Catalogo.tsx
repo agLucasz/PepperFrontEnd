@@ -22,10 +22,10 @@ export type ProdutoCatalogoApi = {
     Tamanho?: string;
     imagemUrl?: string;
     ImagemUrl?: string;
-    categoriaId?: number;
-    CategoriaId?: number;
-    nomeCategoria?: string;
-    NomeCategoria?: string;
+    categoriaIds?: number[];
+    CategoriaIds?: number[];
+    nomeCategorias?: string[];
+    NomeCategorias?: string[];
 };
 
 interface ProdutoCardProps {
@@ -192,8 +192,10 @@ export const Catalogo: React.FC = () => {
         const tamanhoStr = (p.tamanho || p.Tamanho || '');
         const matchesTamanho = sidebarFilters.tamanho ? tamanhoStr.includes(sidebarFilters.tamanho) : true;
 
-        const catId = String(p.categoriaId ?? p.CategoriaId ?? '');
-        const matchesCategoria = sidebarFilters.categoria ? catId === sidebarFilters.categoria : true;
+        const catIds = p.categoriaIds ?? p.CategoriaIds ?? [];
+        const matchesCategoria = sidebarFilters.categoria
+            ? catIds.some(id => String(id) === sidebarFilters.categoria)
+            : true;
 
         return matchesSearch && matchesTamanho && matchesCategoria;
     });

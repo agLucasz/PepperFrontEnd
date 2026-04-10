@@ -1,0 +1,178 @@
+.ordenar-imagens-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  backdrop-filter: blur(4px);
+}
+
+.ordenar-imagens-modal {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.ordenar-imagens-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+  background-color: #222;
+}
+
+.ordenar-imagens-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.ordenar-imagens-header button {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.ordenar-imagens-header button:hover {
+  color: #d61324;
+}
+
+.ordenar-imagens-body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ordenar-imagens-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background-color: #252525;
+  border: 1px solid #3b3b3b;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.ordenar-imagens-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  background-color: #111;
+  border: 1px solid #3f3f3f;
+}
+
+.ordenar-imagens-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ordenar-imagens-position {
+  color: #f3f4f6;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ordenar-imagens-filename {
+  color: #a1a1aa;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ordenar-imagens-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ordenar-imagens-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #2f2f2f;
+  color: #f3f4f6;
+  border: 1px solid #4a4a4a;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ordenar-imagens-btn:hover:not(:disabled) {
+  background-color: #3d3d3d;
+  border-color: #5d5d5d;
+}
+
+.ordenar-imagens-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ordenar-imagens-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background-color: #222;
+}
+
+.ordenar-imagens-btn-cancelar {
+  background-color: transparent;
+  color: #bbb;
+  border: 1px solid #555;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ordenar-imagens-btn-cancelar:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.ordenar-imagens-btn-confirmar {
+  background-color: #d61324;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ordenar-imagens-btn-confirmar:hover {
+  background-color: #b5101e;
+}

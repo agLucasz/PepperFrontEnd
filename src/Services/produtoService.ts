@@ -7,7 +7,7 @@ export interface ProdutoCreateDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    CategoriaId: number;
+    CategoriaIds: number[];
     ImagemUrl: string;
 }
 
@@ -18,7 +18,7 @@ export interface ProdutoUpdateDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    CategoriaId: number;
+    CategoriaIds: number[];
     ImagemUrl?: string;
     Ativo: boolean;
 }
@@ -31,8 +31,8 @@ export interface ProdutoDTO {
     ValorVenda: number;
     Quantidade: number;
     Tamanho: string[];
-    CategoriaId: number;
-    NomeCategoria: string;
+    CategoriaIds: number[];
+    NomeCategorias: string[];
     Ativo: boolean;
     ImagemUrl?: string;
 }
@@ -44,8 +44,8 @@ export interface ProdutoCatalogoDTO {
     valorVenda: number;
     tamanho: string;
     imagemUrl?: string;
-    categoriaId: number;
-    nomeCategoria: string;
+    categoriaIds: number[];
+    nomeCategorias: string[];
 }
 
 interface UploadImageResponseDTO {

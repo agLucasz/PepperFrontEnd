@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Save, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, Save, X, CheckCircle, AlertCircle, ArrowUpDown } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
+import OrdenarImagensModal from '../../../Components/OrdenarImagensModal';
 import { cadastrarProduto, uploadImagem } from '../../../Services/produtoService';
 import type { ProdutoCreateDTO } from '../../../Services/produtoService';
 import { listarCategorias, type CategoriaDTO } from '../../../Services/categoriaService';
@@ -17,6 +18,7 @@ const CadastrarProdutos: React.FC = () => {
     const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
     const [showCategoriaModal, setShowCategoriaModal] = useState(false);
     const [showTamanhoModal, setShowTamanhoModal] = useState(false);
+    const [showOrdenarImagensModal, setShowOrdenarImagensModal] = useState(false);
 
     const [formData, setFormData] = useState<ProdutoCreateDTO>({
         NomeProduto: '',
@@ -25,7 +27,7 @@ const CadastrarProdutos: React.FC = () => {
         ValorVenda: 0,
         Quantidade: 0,
         Tamanho: [],
-        CategoriaId: 0,
+        CategoriaIds: [],
         ImagemUrl: ''
     });
 
@@ -35,8 +37,9 @@ const CadastrarProdutos: React.FC = () => {
         { value: '4', label: 'M' },
         { value: '8', label: 'G' },
         { value: '16', label: 'GG' },
-        { value: '32', label: 'GGG' },
-        { value: '64', label: 'GGGG' }
+        { value: '32', label: 'G1' },
+        { value: '64', label: 'GGGG' },
+        { value: '128', label: 'G2' }
     ];
 
     useEffect(() => {
@@ -45,7 +48,7 @@ const CadastrarProdutos: React.FC = () => {
             .catch(() => setError('Erro ao carregar categorias. Cadastre uma categoria antes de continuar.'));
     }, []);
 
-    const categoriaSelecionada = categorias.find(c => c.categoriaId === formData.CategoriaId);
+    const categoriasSelecionadas = categorias.filter(c => formData.CategoriaIds.includes(c.categoriaId));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -75,9 +78,14 @@ const CadastrarProdutos: React.FC = () => {
         });
     };
 
-    const handleSelectCategoria = (id: number) => {
-        setFormData(prev => ({ ...prev, CategoriaId: id }));
-        setShowCategoriaModal(false);
+    const toggleCategoria = (id: number) => {
+        setFormData(prev => {
+            const atual = prev.CategoriaIds || [];
+            return {
+                ...prev,
+                CategoriaIds: atual.includes(id) ? atual.filter(c => c !== id) : [...atual, id]
+            };
+        });
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,13 +109,18 @@ const CadastrarProdutos: React.FC = () => {
         setImagens(selectedFiles);
     };
 
+    const handleOrdenarImagens = (imagensOrdenadas: File[]) => {
+        setImagens(imagensOrdenadas);
+        setShowOrdenarImagensModal(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setSuccess(null);
 
         if (!imagens.length) { setError('Selecione pelo menos uma imagem antes de salvar.'); return; }
-        if (!formData.CategoriaId) { setError('Selecione uma categoria antes de salvar.'); return; }
+        if (!formData.CategoriaIds.length) { setError('Selecione pelo menos uma categoria antes de salvar.'); return; }
 
         setLoading(true);
         try {
@@ -122,7 +135,7 @@ const CadastrarProdutos: React.FC = () => {
             setFormData({
                 NomeProduto: '', DescricaoProduto: '',
                 ValorCompra: 0, ValorVenda: 0, Quantidade: 0,
-                Tamanho: [], CategoriaId: 0, ImagemUrl: ''
+                Tamanho: [], CategoriaIds: [], ImagemUrl: ''
             });
             setImagens([]);
             setTimeout(() => navigate('/admin/produtos/listar'), 2000);
@@ -266,22 +279,24 @@ const CadastrarProdutos: React.FC = () => {
                             </div>
 
                             <div className="form-group medium" style={{ position: 'relative' }}>
-                                <label>Categoria *</label>
+                                <label>Categorias *</label>
                                 <input
                                     type="text"
-                                    value={categoriaSelecionada ? categoriaSelecionada.nomeCategoria : ''}
+                                    value={categoriasSelecionadas.length > 0
+                                        ? categoriasSelecionadas.map(c => c.nomeCategoria).join(', ')
+                                        : ''}
                                     readOnly
                                     onClick={() => setShowCategoriaModal(true)}
                                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); setShowCategoriaModal(true); } }}
                                     placeholder="Clique para selecionar"
-                                    required
+                                    required={formData.CategoriaIds.length === 0}
                                     style={{ cursor: 'pointer' }}
                                 />
                                 {showCategoriaModal && (
                                     <div className="modal-overlay" onClick={() => setShowCategoriaModal(false)}>
                                         <div className="modal-content" onClick={e => e.stopPropagation()}>
                                             <div className="modal-header">
-                                                <h3>Selecione uma Categoria</h3>
+                                                <h3>Selecione as Categorias</h3>
                                                 <button type="button" onClick={() => setShowCategoriaModal(false)}><X size={20} /></button>
                                             </div>
                                             {categorias.length === 0 ? (
@@ -289,19 +304,24 @@ const CadastrarProdutos: React.FC = () => {
                                                     Nenhuma categoria cadastrada.
                                                 </p>
                                             ) : (
-                                                <ul className="country-list modal-list">
+                                                <div className="tamanhos-list">
                                                     {categorias.map(cat => (
-                                                        <li
+                                                        <div
                                                             key={cat.categoriaId}
-                                                            onClick={() => handleSelectCategoria(cat.categoriaId)}
-                                                            className={formData.CategoriaId === cat.categoriaId ? 'selected' : ''}
+                                                            className={`tamanho-item ${formData.CategoriaIds.includes(cat.categoriaId) ? 'selected' : ''}`}
+                                                            onClick={() => toggleCategoria(cat.categoriaId)}
                                                         >
+                                                            <div className="checkbox-custom">
+                                                                {formData.CategoriaIds.includes(cat.categoriaId) && <CheckCircle size={14} />}
+                                                            </div>
                                                             <span>{cat.nomeCategoria}</span>
-                                                            {formData.CategoriaId === cat.categoriaId && <CheckCircle size={16} className="check-icon" />}
-                                                        </li>
+                                                        </div>
                                                     ))}
-                                                </ul>
+                                                </div>
                                             )}
+                                            <button type="button" className="btn-salvar-modal" onClick={() => setShowCategoriaModal(false)}>
+                                                Confirmar
+                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -330,6 +350,17 @@ const CadastrarProdutos: React.FC = () => {
                                     </ul>
                                 )}
                             </div>
+                            {imagens.length > 1 && (
+                                <button
+                                    type="button"
+                                    className="btn-cancelar"
+                                    style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                    onClick={() => setShowOrdenarImagensModal(true)}
+                                >
+                                    <ArrowUpDown size={16} />
+                                    Reordenar Imagens
+                                </button>
+                            )}
                         </div>
 
                         <div className="form-actions">
@@ -353,6 +384,14 @@ const CadastrarProdutos: React.FC = () => {
                     </form>
                 </div>
             </main>
+
+            {showOrdenarImagensModal && (
+                <OrdenarImagensModal
+                    imagens={imagens}
+                    onConfirm={handleOrdenarImagens}
+                    onClose={() => setShowOrdenarImagensModal(false)}
+                />
+            )}
         </div>
     );
 };

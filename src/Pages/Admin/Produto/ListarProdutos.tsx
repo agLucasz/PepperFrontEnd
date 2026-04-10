@@ -25,10 +25,10 @@ type ProdutoApi = {
     Ativo?: boolean;
     tamanho?: string[];
     Tamanho?: string[];
-    categoriaId?: number;
-    CategoriaId?: number;
-    nomeCategoria?: string;
-    NomeCategoria?: string;
+    categoriaIds?: number[];
+    CategoriaIds?: number[];
+    nomeCategorias?: string[];
+    NomeCategorias?: string[];
     imagemUrl?: string;
     ImagemUrl?: string;
 };

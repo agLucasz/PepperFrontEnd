@@ -93,7 +93,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onFilterChange }) => {
                             <option value="M">M</option>
                             <option value="G">G</option>
                             <option value="GG">GG</option>
-                            <option value="GGG">GGG</option>
+                            <option value="G1">G1</option>
+                            <option value="GGGG">GGGG</option>
+                            <option value="G2">G2</option>
                         </select>
                     </div>
 

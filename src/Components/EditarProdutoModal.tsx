@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, ArrowUp, ArrowDown } from 'lucide-react';
+import { X, Save, ArrowUp, ArrowDown, CheckCircle } from 'lucide-react';
 import { atualizarProduto, desativarProduto, reativarProduto, type ProdutoUpdateDTO } from '../Services/produtoService';
 import { listarCategorias, type CategoriaDTO } from '../Services/categoriaService';
 import '../Styles/Admin/Produto/editarProdutoModal.css';
@@ -21,10 +21,10 @@ interface ProdutoApi {
     Ativo?: boolean;
     tamanho?: string[];
     Tamanho?: string[];
-    categoriaId?: number;
-    CategoriaId?: number;
-    nomeCategoria?: string;
-    NomeCategoria?: string;
+    categoriaIds?: number[];
+    CategoriaIds?: number[];
+    nomeCategorias?: string[];
+    NomeCategorias?: string[];
     imagemUrl?: string;
     ImagemUrl?: string;
 }
@@ -41,8 +41,9 @@ const TAMANHOS_DISPONIVEIS = [
     { value: '4', label: 'M' },
     { value: '8', label: 'G' },
     { value: '16', label: 'GG' },
-    { value: '32', label: 'GGG' },
-    { value: '64', label: 'GGGG' }
+    { value: '32', label: 'G1' },
+    { value: '64', label: 'GGGG' },
+    { value: '128', label: 'G2' }
 ];
 const TAMANHOS_PADRAO = TAMANHOS_DISPONIVEIS.map(t => t.label);
 
@@ -63,13 +64,14 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
     const [valorCompra, setValorCompra] = useState<number>(0);
     const [valorVenda, setValorVenda] = useState<number>(0);
     const [quantidade, setQuantidade] = useState<number>(0);
-    const [categoriaId, setCategoriaId] = useState<number>(0);
+    const [categoriaIds, setCategoriaIds] = useState<number[]>([]);
     const [ativo, setAtivo] = useState<boolean>(true);
     const [imagemUrl, setImagemUrl] = useState('');
     const [alterarPosicaoImagens, setAlterarPosicaoImagens] = useState(false);
     const [imagensOrdenadas, setImagensOrdenadas] = useState<string[]>([]);
     const [tamanhosSelecionados, setTamanhosSelecionados] = useState<string[]>([]);
     const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
+    const [showCategoriaModal, setShowCategoriaModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +86,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
             setValorCompra(produto.valorCompra ?? produto.ValorCompra ?? 0);
             setValorVenda(produto.valorVenda ?? produto.ValorVenda ?? 0);
             setQuantidade(produto.quantidade ?? produto.Quantidade ?? 0);
-            setCategoriaId(produto.categoriaId ?? produto.CategoriaId ?? 0);
+            setCategoriaIds(produto.categoriaIds ?? produto.CategoriaIds ?? []);
             setAtivo(produto.ativo !== undefined ? produto.ativo : (produto.Ativo ?? true));
 
             const imagemUrlAtual = produto.imagemUrl ?? produto.ImagemUrl ?? '';
@@ -115,6 +117,12 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
         );
     };
 
+    const toggleCategoria = (catId: number) => {
+        setCategoriaIds(prev =>
+            prev.includes(catId) ? prev.filter(c => c !== catId) : [...prev, catId]
+        );
+    };
+
     const handleMoveImage = (index: number, direction: 'up' | 'down') => {
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
         if (targetIndex < 0 || targetIndex >= imagensOrdenadas.length) return;
@@ -128,7 +136,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
         e.preventDefault();
 
         if (!id) { setError('ID do produto inválido.'); return; }
-        if (!nomeProduto || valorCompra <= 0 || valorVenda <= 0 || !categoriaId) {
+        if (!nomeProduto || valorCompra <= 0 || valorVenda <= 0 || categoriaIds.length === 0) {
             setError('Por favor, preencha todos os campos obrigatórios corretamente.');
             return;
         }
@@ -145,7 +153,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                 ValorCompra: valorCompra,
                 ValorVenda: valorVenda,
                 Quantidade: quantidade,
-                CategoriaId: categoriaId,
+                CategoriaIds: categoriaIds,
                 Ativo: ativo,
                 ImagemUrl: imagemUrlAtualizada,
                 Tamanho: tamanhosSelecionados
@@ -169,6 +177,11 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
             setLoading(false);
         }
     };
+
+    const categoriasSelecionadasNomes = categorias
+        .filter(c => categoriaIds.includes(c.categoriaId))
+        .map(c => c.nomeCategoria)
+        .join(', ');
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -241,19 +254,70 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                             </div>
 
                             <div className="form-group quarter-width">
-                                <label>Categoria *</label>
-                                <select
-                                    value={categoriaId}
-                                    onChange={e => setCategoriaId(Number(e.target.value))}
-                                    required
-                                >
-                                    <option value={0} disabled>Selecione...</option>
-                                    {categorias.map(cat => (
-                                        <option key={cat.categoriaId} value={cat.categoriaId}>
-                                            {cat.nomeCategoria}
-                                        </option>
-                                    ))}
-                                </select>
+                                <label>Categorias *</label>
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={categoriasSelecionadasNomes || ''}
+                                    placeholder="Clique para selecionar"
+                                    onClick={() => setShowCategoriaModal(true)}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                                {showCategoriaModal && (
+                                    <div className="modal-overlay" style={{ zIndex: 1100 }} onClick={() => setShowCategoriaModal(false)}>
+                                        <div style={{
+                                            background: '#1a1a1a',
+                                            border: '1px solid #333',
+                                            borderRadius: '12px',
+                                            width: '90%',
+                                            maxWidth: '400px',
+                                            maxHeight: '80vh',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                                            overflow: 'hidden'
+                                        }} onClick={e => e.stopPropagation()}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #333', background: '#222' }}>
+                                                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#fff' }}>Selecione as Categorias</h3>
+                                                <button type="button" onClick={() => setShowCategoriaModal(false)} style={{ background: 'none', border: 'none', color: '#aaa', cursor: 'pointer' }}><X size={20} /></button>
+                                            </div>
+                                            <div style={{ padding: '12px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                {categorias.map(cat => (
+                                                    <div
+                                                        key={cat.categoriaId}
+                                                        onClick={() => toggleCategoria(cat.categoriaId)}
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '12px',
+                                                            padding: '12px 16px',
+                                                            background: categoriaIds.includes(cat.categoriaId) ? 'rgba(74,222,128,0.1)' : '#252525',
+                                                            border: categoriaIds.includes(cat.categoriaId) ? '1px solid #4ade80' : '1px solid transparent',
+                                                            borderRadius: '8px',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        <div style={{
+                                                            width: '20px', height: '20px', border: '2px solid', borderColor: categoriaIds.includes(cat.categoriaId) ? '#4ade80' : '#555',
+                                                            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            background: categoriaIds.includes(cat.categoriaId) ? '#4ade80' : 'transparent', color: 'white', flexShrink: 0
+                                                        }}>
+                                                            {categoriaIds.includes(cat.categoriaId) && <CheckCircle size={14} />}
+                                                        </div>
+                                                        <span style={{ color: '#e0e0e0' }}>{cat.nomeCategoria}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowCategoriaModal(false)}
+                                                style={{ margin: '16px', padding: '12px', background: '#4ade80', color: '#1a1a1a', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                            >
+                                                Confirmar
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="form-group full-width">

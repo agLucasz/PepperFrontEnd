@@ -296,15 +296,18 @@
 
 @media (max-width: 768px) {
   .catalogo-modal-overlay {
-    align-items: flex-end; /* Abre de baixo no mobile */
+    align-items: flex-end;
+    padding: 0;
   }
 
   .catalogo-modal-content {
     flex-direction: column;
     padding: 20px;
     gap: 30px;
-    height: 95vh;
-    border-radius: 24px 24px 0 0; /* Arredondado só no topo */
+    width: 100%;
+    height: 100vh;
+    max-width: 100%;
+    border-radius: 0;
     animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -359,13 +362,13 @@
 }
 
 .catalogo-modal-gallery {
-  flex: 1; /* Aumentado ainda mais o espaço para as imagens */
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px; /* Reduzido o espaço (gap) entre as imagens para deixá-las mais juntas */
+  gap: 16px;
   align-content: start;
-  justify-content: center;
   overflow-y: auto;
+  max-height: 100%;
 }
 
 .catalogo-modal-gallery::-webkit-scrollbar {
@@ -377,7 +380,7 @@
 }
 
 .catalogo-modal-image-wrapper {
-  width: 85%; /* Voltando para preencher totalmente o seu espaço do grid */
+  width: 100%;
   margin: 0;
   aspect-ratio: 3/4;
   background-color: #2a2a2a;
@@ -593,6 +596,34 @@
   background-color: #d61324;
   border-color: #d61324;
   color: #ffffff;
+}
+
+/* Botão Voltar — visível apenas no mobile */
+.catalogo-modal-voltar-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .catalogo-modal-voltar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 16px;
+    background-color: #222;
+    color: #e5e7eb;
+    border: 1px solid #333;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .catalogo-modal-voltar-btn:hover {
+    background-color: #333;
+  }
 }
 
 /* Correções mobile do modal — layout e galeria */
