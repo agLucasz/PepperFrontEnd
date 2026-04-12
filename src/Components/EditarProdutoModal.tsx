@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, ArrowUp, ArrowDown, CheckCircle } from 'lucide-react';
 import { atualizarProduto, desativarProduto, reativarProduto, type ProdutoUpdateDTO } from '../Services/produtoService';
 import { listarCategorias, type CategoriaDTO } from '../Services/categoriaService';
+import { resolveImageUrl } from '../config/api';
 import '../Styles/Admin/Produto/editarProdutoModal.css';
 
 interface ProdutoApi {
@@ -42,7 +43,6 @@ const TAMANHOS_DISPONIVEIS = [
     { value: '8', label: 'G' },
     { value: '16', label: 'GG' },
     { value: '32', label: 'G1' },
-    { value: '64', label: 'GGGG' },
     { value: '128', label: 'G2' }
 ];
 const TAMANHOS_PADRAO = TAMANHOS_DISPONIVEIS.map(t => t.label);
@@ -51,7 +51,7 @@ const normalizeSizeLabel = (value: string) => {
     const cleaned = value.trim().toUpperCase().replace(/[\s-_]/g, '');
     if (cleaned === 'NENHUM') return 'NENHUM';
     const semGenero = cleaned.replace(/(MASCULINO|FEMININO)$/g, '');
-    const matched = TAMANHOS_PADRAO.find(t => semGenero === t || semGenero.startsWith(t));
+    const matched = TAMANHOS_PADRAO.find(t => semGenero === t);
     return matched ?? semGenero;
 };
 
@@ -367,7 +367,7 @@ const EditarProdutoModal: React.FC<EditarProdutoModalProps> = ({ produto, onClos
                                         <div className="image-order-list">
                                             {imagensOrdenadas.map((url, index) => (
                                                 <div className="image-order-item" key={`${url}-${index}`}>
-                                                    <img src={url} alt={`Imagem ${index + 1}`} className="image-order-preview" />
+                                                    <img src={resolveImageUrl(url)} alt={`Imagem ${index + 1}`} className="image-order-preview" />
                                                     <div className="image-order-info">
                                                         <span className="image-order-position">Posição {index + 1}</span>
                                                         <span className="image-order-url">{url}</span>

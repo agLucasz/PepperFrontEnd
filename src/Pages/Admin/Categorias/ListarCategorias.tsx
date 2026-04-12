@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Edit, Trash2, Tag, Save, X } from 'lucide-react';
+import { Edit, Trash2, Tag, Save, X, Star } from 'lucide-react';
 import AdminSidebar from '../../../Components/AdminSidebar';
 import { listarCategorias, atualizarCategoria, excluirCategoria, type CategoriaDTO } from '../../../Services/categoriaService';
 import '../../../Styles/Admin/adminDashBoard.css';
@@ -11,6 +11,7 @@ const ListarCategorias: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [editando, setEditando] = useState<CategoriaDTO | null>(null);
     const [nomeEditado, setNomeEditado] = useState('');
+    const [destaqueEditado, setDestaqueEditado] = useState(false);
     const [editLoading, setEditLoading] = useState(false);
     const [editError, setEditError] = useState<string | null>(null);
 
@@ -38,6 +39,7 @@ const ListarCategorias: React.FC = () => {
     const handleEdit = (categoria: CategoriaDTO) => {
         setEditando(categoria);
         setNomeEditado(categoria.nomeCategoria);
+        setDestaqueEditado(categoria.destaque);
         setEditError(null);
     };
 
@@ -51,7 +53,7 @@ const ListarCategorias: React.FC = () => {
         try {
             setEditLoading(true);
             setEditError(null);
-            await atualizarCategoria(editando.categoriaId, { NomeCategoria: nomeEditado.trim() });
+            await atualizarCategoria(editando.categoriaId, { NomeCategoria: nomeEditado.trim(), Destaque: destaqueEditado });
             setEditando(null);
             carregarCategorias();
         } catch (err) {
@@ -101,13 +103,14 @@ const ListarCategorias: React.FC = () => {
                                     <tr>
                                         <th className="text-left">ID</th>
                                         <th className="text-left">Nome da Categoria</th>
+                                        <th className="text-center">Destaque</th>
                                         <th className="text-right">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {categorias.length === 0 ? (
                                         <tr>
-                                            <td colSpan={3} className="empty-state">
+                                            <td colSpan={4} className="empty-state">
                                                 Nenhuma categoria cadastrada.
                                             </td>
                                         </tr>
@@ -120,6 +123,13 @@ const ListarCategorias: React.FC = () => {
                                                         <Tag size={16} className="categoria-nome-icon" />
                                                         {categoria.nomeCategoria}
                                                     </div>
+                                                </td>
+                                                <td className="text-center">
+                                                    {categoria.destaque && (
+                                                        <span title="Em destaque">
+                                                            <Star size={16} style={{ color: '#f59e0b', fill: '#f59e0b', display: 'inline' }} />
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="td-actions">
                                                     <div className="actions-container">
@@ -172,6 +182,48 @@ const ListarCategorias: React.FC = () => {
                                     autoFocus
                                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleEditSave(); } }}
                                 />
+                            </div>
+                            <div
+                                className="form-group"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    background: destaqueEditado ? 'rgba(245,158,11,0.08)' : '#1e1e1e',
+                                    border: `1px solid ${destaqueEditado ? '#f59e0b' : '#333'}`,
+                                    borderRadius: '10px',
+                                    padding: '14px 16px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    marginBottom: 0,
+                                }}
+                                onClick={() => setDestaqueEditado(d => !d)}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <Star size={18} style={{ color: destaqueEditado ? '#f59e0b' : '#666', fill: destaqueEditado ? '#f59e0b' : 'none', transition: 'all 0.2s' }} />
+                                    <div>
+                                        <div style={{ fontWeight: 600, color: '#f3f4f6', fontSize: '0.95rem' }}>Categoria em Destaque</div>
+                                        <div style={{ color: '#9ca3af', fontSize: '0.8rem' }}>Exibe esta categoria como seção no catálogo</div>
+                                    </div>
+                                </div>
+                                <div style={{
+                                    width: '44px', height: '24px',
+                                    borderRadius: '12px',
+                                    background: destaqueEditado ? '#f59e0b' : '#333',
+                                    position: 'relative',
+                                    transition: 'background 0.2s',
+                                    flexShrink: 0,
+                                }}>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '3px',
+                                        left: destaqueEditado ? '23px' : '3px',
+                                        width: '18px', height: '18px',
+                                        borderRadius: '50%',
+                                        background: '#fff',
+                                        transition: 'left 0.2s',
+                                    }} />
+                                </div>
                             </div>
                         </div>
 

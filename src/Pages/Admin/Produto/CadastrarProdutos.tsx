@@ -38,7 +38,6 @@ const CadastrarProdutos: React.FC = () => {
         { value: '8', label: 'G' },
         { value: '16', label: 'GG' },
         { value: '32', label: 'G1' },
-        { value: '64', label: 'GGGG' },
         { value: '128', label: 'G2' }
     ];
 

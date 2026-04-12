@@ -3,10 +3,12 @@ import { API_BASE_URL } from '../config/api';
 export interface CategoriaDTO {
     categoriaId: number;
     nomeCategoria: string;
+    destaque: boolean;
 }
 
 export interface CategoriaCreateDTO {
     NomeCategoria: string;
+    Destaque: boolean;
 }
 
 function getAuthHeaders(): Record<string, string> {

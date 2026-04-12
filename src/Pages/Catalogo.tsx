@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { listarCatalogo } from '../Services/produtoService';
+import { listarCategorias, type CategoriaDTO } from '../Services/categoriaService';
 import Sidebar, { type CatalogFilters } from '../Components/Sidebar';
 import { ProductImageCarouselModal } from '../Components/ProductImageCarouselModal';
 import { MessageCircle, Search } from 'lucide-react';
@@ -77,6 +78,7 @@ const ProdutoCard: React.FC<ProdutoCardProps> = ({ produto, onOpenModal }) => {
 
 export const Catalogo: React.FC = () => {
     const [produtos, setProdutos] = useState<ProdutoCatalogoApi[]>([]);
+    const [categorias, setCategorias] = useState<CategoriaDTO[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -110,6 +112,10 @@ export const Catalogo: React.FC = () => {
                 setLoading(false);
             }
         }
+    }, []);
+
+    useEffect(() => {
+        listarCategorias().then(setCategorias).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -261,15 +267,53 @@ export const Catalogo: React.FC = () => {
                     {loading && <div className="catalogo-loading">Carregando catálogo...</div>}
                     {error && <div className="catalogo-error">{error}</div>}
 
+                    {/* Seções em destaque — exibidas apenas sem filtros ativos */}
+                    {!loading && !error && !searchTerm && !sidebarFilters.categoria && !sidebarFilters.tamanho && (() => {
+                        const categoriasDestaque = categorias.filter(c => c.destaque);
+                        if (categoriasDestaque.length === 0) return null;
+                        return (
+                            <>
+                                {categoriasDestaque.map(cat => {
+                                    const produtosDaCategoria = produtos.filter(p => {
+                                        const ids = p.categoriaIds ?? p.CategoriaIds ?? [];
+                                        return ids.includes(cat.categoriaId);
+                                    });
+                                    if (produtosDaCategoria.length === 0) return null;
+                                    return (
+                                        <div key={cat.categoriaId} className="catalogo-secao-destaque">
+                                            <div className="catalogo-secao-header">
+                                                <h3 className="catalogo-secao-titulo">{cat.nomeCategoria}</h3>
+                                                <div className="catalogo-secao-linha" />
+                                            </div>
+                                            <div className="catalogo-secao-grid">
+                                                {produtosDaCategoria.map(produto => (
+                                                    <ProdutoCard
+                                                        key={produto.produtoId || produto.ProdutoId}
+                                                        produto={produto}
+                                                        onOpenModal={handleOpenModal}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                <div className="catalogo-secao-header" style={{ marginTop: '40px' }}>
+                                    <h3 className="catalogo-secao-titulo">Todos os Produtos</h3>
+                                    <div className="catalogo-secao-linha" />
+                                </div>
+                            </>
+                        );
+                    })()}
+
                     {!loading && !error && (
                         <div className="catalogo-grid">
                             {produtosFiltrados.length === 0 ? (
                                 <p className="catalogo-empty">Nenhum produto encontrado com os filtros selecionados.</p>
                             ) : (
                                 produtosPagina.map(produto => (
-                                    <ProdutoCard 
-                                        key={produto.produtoId || produto.ProdutoId} 
-                                        produto={produto} 
+                                    <ProdutoCard
+                                        key={produto.produtoId || produto.ProdutoId}
+                                        produto={produto}
                                         onOpenModal={handleOpenModal}
                                     />
                                 ))

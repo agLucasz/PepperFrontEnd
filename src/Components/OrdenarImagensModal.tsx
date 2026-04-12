@@ -9,14 +9,23 @@ interface OrdenarImagensModalProps {
 }
 
 const OrdenarImagensModal: React.FC<OrdenarImagensModalProps> = ({ imagens, onConfirm, onClose }) => {
-    const [ordem, setOrdem] = useState<File[]>([...imagens]);
-    const [previews, setPreviews] = useState<string[]>([]);
+    // useState lazy init: roda uma vez por mount.
+    // Em StrictMode (dev), o cycle mount→unmount→mount recria o mapa
+    // com novas URLs válidas após o cleanup revogar as antigas.
+    const [urlMap] = useState<Map<File, string>>(() => {
+        const map = new Map<File, string>();
+        imagens.forEach(f => map.set(f, URL.createObjectURL(f)));
+        return map;
+    });
 
+    const [ordem, setOrdem] = useState<File[]>([...imagens]);
+
+    // Revoga somente no unmount real
     useEffect(() => {
-        const urls = ordem.map(f => URL.createObjectURL(f));
-        setPreviews(urls);
-        return () => urls.forEach(u => URL.revokeObjectURL(u));
-    }, [ordem]);
+        return () => {
+            urlMap.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [urlMap]);
 
     const handleMove = (index: number, direction: 'up' | 'down') => {
         const target = direction === 'up' ? index - 1 : index + 1;
@@ -36,9 +45,9 @@ const OrdenarImagensModal: React.FC<OrdenarImagensModalProps> = ({ imagens, onCo
 
                 <div className="ordenar-imagens-body">
                     {ordem.map((file, index) => (
-                        <div key={`${file.name}-${index}`} className="ordenar-imagens-item">
+                        <div key={`${file.name}-${file.size}-${index}`} className="ordenar-imagens-item">
                             <img
-                                src={previews[index]}
+                                src={urlMap.get(file)}
                                 alt={`Imagem ${index + 1}`}
                                 className="ordenar-imagens-preview"
                             />

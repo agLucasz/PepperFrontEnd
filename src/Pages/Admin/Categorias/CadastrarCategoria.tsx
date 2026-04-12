@@ -25,7 +25,7 @@ const CadastrarCategoria: React.FC = () => {
 
         setLoading(true);
         try {
-            await cadastrarCategoria({ NomeCategoria: nomeCategoria.trim() });
+            await cadastrarCategoria({ NomeCategoria: nomeCategoria.trim(), Destaque: false });
             setSuccess('Categoria cadastrada com sucesso!');
             setNomeCategoria('');
             setTimeout(() => navigate('/admin/categorias/listar'), 2000);
